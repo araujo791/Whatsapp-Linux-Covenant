@@ -33,381 +33,110 @@ function handleChromeVersionBug() {
 }
 
 // -------------------------------------------------------------
-// COVENANT FULL-WINDOW THEME ENGINE
-// Colors 100% of the window: Left Rail, Headers, Chats, Cards, Composer & Wallpapers
+// ZAPZAP INTEGRATED ENHANCEMENTS
 // -------------------------------------------------------------
-interface ThemeConfig {
-    bg: string;
-    convBg: string;
-    headerBg: string;
-    hover: string;
-    active: string;
-    inputBg: string;
-    incomingBg: string;
-    incomingBgDeeper: string;
-    outgoingBg: string;
-    outgoingBgDeeper: string;
-    primary: string;
-    text: string;
-    secondary: string;
-    headerIcon: string;
-    border: string;
-    iconRule?: string;
-}
 
-function buildThemeCss(t: ThemeConfig): string {
-    return `
-        /* 1. Global & Root Variables */
-        :root, html, body, body.dark, [data-theme="dark"], #app, div.web {
-            --app-background: ${t.bg} !important;
-            --background-default: ${t.bg} !important;
-            --background-default-hover: ${t.hover} !important;
-            --background-default-active: ${t.active} !important;
-            --conversation-panel-background: ${t.convBg} !important;
-            --panel-header-background: ${t.headerBg} !important;
-            --panel-header-icon: ${t.headerIcon} !important;
-            --search-input-background: ${t.inputBg} !important;
-            --incoming-background: ${t.incomingBg} !important;
-            --incoming-background-deeper: ${t.incomingBgDeeper} !important;
-            --outgoing-background: ${t.outgoingBg} !important;
-            --outgoing-background-deeper: ${t.outgoingBgDeeper} !important;
-            --primary: ${t.primary} !important;
-            --primary-strong: ${t.primary} !important;
-            --primary-title: ${t.text} !important;
-            --secondary: ${t.secondary} !important;
-            --message-primary: ${t.text} !important;
-            --message-secondary: ${t.secondary} !important;
-            --compose-input-background: ${t.inputBg} !important;
-            --compose-input-border: ${t.border} !important;
-            --border-default: ${t.border} !important;
-            --border-list: ${t.border} !important;
-            --border-strong: ${t.border} !important;
-            --modal-background: ${t.bg} !important;
-            --dropdown-background: ${t.hover} !important;
-        }
+// 1. WebRTC Privacy Shield (Prevents local network/IP candidate leakage)
+function installWebRTCShield() {
+    try {
+        const win = window as any;
+        const originalRTCPeerConnection = win.RTCPeerConnection || win.webkitRTCPeerConnection;
+        if (!originalRTCPeerConnection) return;
 
-        /* 2. Entire Window Shell */
-        html, body, #app, #app > div, #app > div > div {
-            background-color: ${t.bg} !important;
-            color: ${t.text} !important;
-        }
+        const patchedRTCPeerConnection = function(...args: any[]) {
+            const pc = new originalRTCPeerConnection(...args);
+            const originalAddIceCandidate = pc.addIceCandidate;
+            pc.addIceCandidate = function(candidate: any, successCallback: any, failureCallback: any) {
+                if (candidate && candidate.candidate) {
+                    if (candidate.candidate.includes("typ host") || candidate.candidate.includes("typ srflx")) {
+                        candidate.candidate = candidate.candidate.replace(/([0-9]{1,3}\.){3}[0-9]{1,3}/g, "0.0.0.0");
+                        candidate.candidate = candidate.candidate.replace(/[0-9a-fA-F]{1,4}(:[0-9a-fA-F]{0,4}){2,7}/g, "::");
+                    }
+                }
+                if (arguments.length > 1) {
+                    return originalAddIceCandidate.apply(this, arguments);
+                } else {
+                    return originalAddIceCandidate.call(this, candidate)
+                        .then(successCallback)
+                        .catch(failureCallback);
+                }
+            };
+            return pc;
+        };
 
-        /* 3. Left Navigation Rail (Dock with WhatsApp, chats, settings icons) */
-        #app > div > div > header,
-        #app > div > div > div:first-child,
-        header[role="region"],
-        div[role="navigation"],
-        nav {
-            background-color: ${t.headerBg} !important;
-            border-right: 1px solid ${t.border} !important;
-        }
-        #app > div > div > header button,
-        div[role="navigation"] button,
-        nav button {
-            color: ${t.secondary} !important;
-        }
-        #app > div > div > header button:hover,
-        div[role="navigation"] button:hover {
-            background-color: ${t.hover} !important;
-        }
-
-        /* 4. Sidebar: Header ("WhatsApp", 3 dots, new chat) & Search */
-        #side,
-        #side > header,
-        #side header,
-        #side > div:first-child,
-        div[data-testid="chatlist-header"],
-        header._ak4w {
-            background-color: ${t.headerBg} !important;
-            border-bottom: 1px solid ${t.border} !important;
-            color: ${t.text} !important;
-        }
-        div[data-testid="chat-list-search"] {
-            background-color: ${t.headerBg} !important;
-        }
-        div[data-testid="chat-list-search"] div[contenteditable="true"],
-        div[data-testid="chat-list-search"] input,
-        #side div[role="textbox"] {
-            background-color: ${t.inputBg} !important;
-            color: ${t.text} !important;
-            border: 1px solid ${t.border} !important;
-        }
-        /* Search Filter Pills */
-        div[data-testid="chat-list-search"] button,
-        #side button[role="tab"],
-        #side div[role="tablist"] button {
-            background-color: ${t.inputBg} !important;
-            color: ${t.text} !important;
-            border: 1px solid ${t.border} !important;
-        }
-        div[data-testid="chat-list-search"] button[aria-selected="true"],
-        #side button[role="tab"][aria-selected="true"],
-        #side div[role="tablist"] button[aria-selected="true"] {
-            background-color: ${t.outgoingBg} !important;
-            color: ${t.primary} !important;
-            border-color: ${t.primary} !important;
-        }
-
-        /* 5. Sidebar: Chat List Items */
-        #pane-side,
-        #pane-side > div,
-        #pane-side div[role="listitem"],
-        #pane-side div[role="listitem"] > div,
-        #pane-side div[role="row"],
-        #pane-side div[data-testid="cell-frame-container"],
-        #pane-side div[tabindex] {
-            background-color: ${t.bg} !important;
-        }
-        #pane-side div[role="listitem"]:hover,
-        #pane-side div[role="listitem"]:hover > div,
-        #pane-side div[data-testid="cell-frame-container"]:hover {
-            background-color: ${t.hover} !important;
-        }
-        #pane-side div[role="listitem"][aria-selected="true"],
-        #pane-side div[role="listitem"][aria-selected="true"] > div,
-        #pane-side div[data-testid="cell-frame-container"][aria-selected="true"],
-        #pane-side div[aria-selected="true"] {
-            background-color: ${t.active} !important;
-        }
-        #side span[dir="auto"],
-        #pane-side div[data-testid="cell-frame-title"],
-        #side header span {
-            color: ${t.text} !important;
-        }
-        #pane-side div[data-testid="cell-frame-secondary"],
-        #side span[data-testid="status-time"] {
-            color: ${t.secondary} !important;
-        }
-
-        /* 6. Main Chat Area: Header */
-        #main header,
-        #main > header,
-        #main > div > header {
-            background-color: ${t.headerBg} !important;
-            border-bottom: 1px solid ${t.border} !important;
-            border-left: 1px solid ${t.border} !important;
-            color: ${t.text} !important;
-        }
-        #main header span[dir="auto"],
-        #main header div[role="button"] span {
-            color: ${t.text} !important;
-        }
-        #main header svg,
-        #main header button {
-            color: ${t.secondary} !important;
-            fill: currentColor !important;
-        }
-
-        /* 7. Main Chat Area: Body & Doodle Wallpaper */
-        #main,
-        div[data-testid="conversation-panel-wrapper"] {
-            background-color: ${t.convBg} !important;
-            border-left: 1px solid ${t.border} !important;
-        }
-        /* Keep messages container transparent so wallpaper is visible */
-        div[data-testid="conversation-panel-body"],
-        div[data-testid="conversation-panel-wrapper"] > div[tabindex],
-        div[data-testid="conversation-panel-wrapper"] > div:not([data-testid="chat-bg-dark"]):not([data-testid="chat-bg-light"]) {
-            background-color: transparent !important;
-        }
-        /* Preserve WhatsApp official doodle wallpaper symbols */
-        [data-asset-chat-background-dark="true"],
-        [data-asset-chat-background-light="true"],
-        span[data-testid="chat-bg-dark"],
-        span[data-testid="chat-bg-light"],
-        div[data-testid="conversation-panel-wrapper"] > span,
-        div[data-testid="conversation-panel-wrapper"] span[style*="background-image"] {
-            opacity: 0.16 !important;
-            display: block !important;
-            visibility: visible !important;
-        }
-
-        /* 8. Message Bubbles */
-        /* Incoming Messages */
-        .message-in,
-        .message-in > div,
-        div[data-testid="msg-container"] .message-in,
-        div[data-testid="msg-container"] .message-in > div,
-        div[data-testid="msg-container"] .message-in div[role="row"],
-        div[data-testid="msg-container"] .message-in .copyable-text,
-        div[data-testid="msg-container"] .message-in div[data-testid*="catalog"],
-        div[data-testid="msg-container"] .message-in div[data-testid*="order"] {
-            background-color: ${t.incomingBg} !important;
-            color: ${t.text} !important;
-        }
-        div.message-in span[dir="auto"],
-        div.message-in div,
-        div.message-in p {
-            color: ${t.text} !important;
-        }
-        span[data-testid="tail-in"] svg path,
-        span[data-testid="tail-in"] svg {
-            fill: ${t.incomingBg} !important;
-        }
-
-        /* Outgoing Messages */
-        .message-out,
-        .message-out > div,
-        div[data-testid="msg-container"] .message-out,
-        div[data-testid="msg-container"] .message-out > div,
-        div[data-testid="msg-container"] .message-out div[role="row"],
-        div[data-testid="msg-container"] .message-out .copyable-text {
-            background-color: ${t.outgoingBg} !important;
-            color: ${t.text} !important;
-        }
-        div.message-out span[dir="auto"],
-        div.message-out div,
-        div.message-out p {
-            color: ${t.text} !important;
-        }
-        span[data-testid="tail-out"] svg path,
-        span[data-testid="tail-out"] svg {
-            fill: ${t.outgoingBg} !important;
-        }
-
-        /* Date Badges & System Notices */
-        div[data-testid="system-message-container"] > div,
-        div[data-testid="conversation-panel-wrapper"] div[role="region"] > div {
-            background-color: ${t.hover} !important;
-            color: ${t.secondary} !important;
-            border: 1px solid ${t.border} !important;
-        }
-
-        /* 9. Main Chat Area: Footer / Composer */
-        #main footer,
-        #main > footer,
-        footer {
-            background-color: ${t.headerBg} !important;
-            border-top: 1px solid ${t.border} !important;
-            border-left: 1px solid ${t.border} !important;
-        }
-        #main footer div[contenteditable="true"],
-        #main footer div[role="textbox"],
-        #main footer input {
-            background-color: ${t.inputBg} !important;
-            color: ${t.text} !important;
-            border: 1px solid ${t.border} !important;
-        }
-        #main footer button,
-        #main footer svg {
-            color: ${t.secondary} !important;
-            fill: currentColor !important;
-        }
-
-        /* 10. Drawers & Info Panels */
-        div[data-testid="chat-info-drawer"],
-        div[role="region"][aria-label*="dados"],
-        div[role="region"][aria-label*="info"],
-        div[data-testid="drawer-right"] {
-            background-color: ${t.bg} !important;
-            color: ${t.text} !important;
-            border-left: 1px solid ${t.border} !important;
-        }
-
-        /* 11. Dropdown Menus & Popups */
-        div[role="application"] > div[tabindex],
-        div[data-testid="popup-contents"],
-        div[data-testid="dropdown"],
-        div[role="menu"] {
-            background-color: ${t.hover} !important;
-            color: ${t.text} !important;
-            border: 1px solid ${t.border} !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
-        }
-        div[role="menu"] div[role="button"]:hover,
-        div[role="menu"] li:hover {
-            background-color: ${t.active} !important;
-        }
-
-        ${t.iconRule || ""}
-    `;
-}
-
-function getThemeCss(theme: string): string {
-    switch (theme) {
-        case "oled":
-            return buildThemeCss({
-                bg: "#000000",
-                convBg: "#000000",
-                headerBg: "#000000",
-                hover: "#0e0e0e",
-                active: "#181818",
-                inputBg: "#0e0e0e",
-                incomingBg: "#141414",
-                incomingBgDeeper: "#0d0d0d",
-                outgoingBg: "#00473a",
-                outgoingBgDeeper: "#00382d",
-                primary: "#00a884",
-                text: "#ffffff",
-                secondary: "#8696a0",
-                headerIcon: "#aebac1",
-                border: "#161616",
-                iconRule: `button svg, span[data-icon] svg { color: #aebac1 !important; fill: currentColor !important; }`
-            });
-
-        case "dracula":
-            return buildThemeCss({
-                bg: "#282a36",
-                convBg: "#1e1f29",
-                headerBg: "#21222c",
-                hover: "#343746",
-                active: "#44475a",
-                inputBg: "#21222c",
-                incomingBg: "#44475a",
-                incomingBgDeeper: "#383a59",
-                outgoingBg: "#383a59",
-                outgoingBgDeeper: "#2d2f47",
-                primary: "#bd93f9",
-                text: "#f8f8f2",
-                secondary: "#6272a4",
-                headerIcon: "#bd93f9",
-                border: "#44475a",
-                iconRule: `button svg, span[data-icon] svg { color: #bd93f9 !important; fill: currentColor !important; }`
-            });
-
-        case "catppuccin":
-            return buildThemeCss({
-                bg: "#1e1e2e",
-                convBg: "#181825",
-                headerBg: "#181825",
-                hover: "#252538",
-                active: "#313244",
-                inputBg: "#181825",
-                incomingBg: "#313244",
-                incomingBgDeeper: "#252538",
-                outgoingBg: "#2b473e",
-                outgoingBgDeeper: "#223831",
-                primary: "#cba6f7",
-                text: "#cdd6f4",
-                secondary: "#7f849c",
-                headerIcon: "#cba6f7",
-                border: "#313244",
-                iconRule: `button svg, span[data-icon] svg { color: #cba6f7 !important; fill: currentColor !important; }`
-            });
-
-        case "nord":
-            return buildThemeCss({
-                bg: "#2e3440",
-                convBg: "#242933",
-                headerBg: "#242933",
-                hover: "#3b4252",
-                active: "#434c5e",
-                inputBg: "#242933",
-                incomingBg: "#3b4252",
-                incomingBgDeeper: "#2e3440",
-                outgoingBg: "#28443e",
-                outgoingBgDeeper: "#203632",
-                primary: "#88c0d0",
-                text: "#eceff4",
-                secondary: "#81a1c1",
-                headerIcon: "#88c0d0",
-                border: "#3b4252",
-                iconRule: `button svg, span[data-icon] svg { color: #88c0d0 !important; fill: currentColor !important; }`
-            });
-
-        default:
-            return "";
+        patchedRTCPeerConnection.prototype = originalRTCPeerConnection.prototype;
+        try { win.RTCPeerConnection = patchedRTCPeerConnection; } catch(e) {}
+        try { win.webkitRTCPeerConnection = patchedRTCPeerConnection; } catch(e) {}
+        console.log("[Covenant] WebRTC Privacy Shield active.");
+    } catch (err) {
+        console.warn("[Covenant] Could not install WebRTC shield", err);
     }
+}
+
+// 2. Ctrl+Arrow Word Navigation Fix for WhatsApp Web Message Input
+function installCtrlArrowVisualNavigationFix() {
+    document.addEventListener("keydown", function(e) {
+        if (!e.ctrlKey || (e.key !== "ArrowLeft" && e.key !== "ArrowRight")) return;
+        const sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0) return;
+        const el = sel.anchorNode && (sel.anchorNode.nodeType === 1 ? (sel.anchorNode as Element) : sel.anchorNode.parentElement);
+        if (!el || !el.closest('[contenteditable="true"]')) return;
+
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        const direction = e.key === "ArrowLeft" ? "left" : "right";
+        const alter = e.shiftKey ? "extend" : "move";
+        (sel as any).modify(alter, direction, "word");
+    }, true);
+    console.log("[Covenant] Ctrl+Arrow visual navigation fix active.");
+}
+
+// 3. Direct PDF & Document Click Controller (Routes downloads cleanly without trapped preview)
+function installPdfClickController() {
+    const PDF = /\.pdf(?:\b|$)/i;
+    const DOWNLOAD = /(?:download|baixar|descargar|télécharger|herunterladen)/i;
+    const isDownloadButton = (node: any) => {
+        if (!node || !node.getAttribute) return false;
+        if (node.matches && node.matches("a[download]")) return true;
+        const fields = [
+            node.getAttribute("aria-label") || "",
+            node.getAttribute("title") || "",
+            node.getAttribute("data-testid") || "",
+            node.getAttribute("data-icon") || ""
+        ].join(" ");
+        return DOWNLOAD.test(fields) || !!node.querySelector('[data-icon*="download"], [data-testid*="download"]');
+    };
+
+    const findPdfCard = (target: any) => {
+        if (!target || !target.closest) return null;
+        const message = target.closest("[data-id], [data-testid='msg-container']");
+        const documentCard = target.closest('[data-testid*="document"], [data-testid*="file"]');
+        const root = documentCard || message;
+        if (!root) return null;
+        const marksDocument = !!documentCard || !!root.querySelector('[data-testid*="document"], [data-icon*="document"]');
+        if (!marksDocument) return null;
+        const label = ((documentCard && documentCard.innerText) || (message && message.innerText) || "").slice(0, 500);
+        return PDF.test(label) ? (documentCard || message) : null;
+    };
+
+    document.addEventListener("click", (event) => {
+        if (!event.isTrusted || !(event.target instanceof Element)) return;
+        if (event.target.closest("button, [role='button'], a[download]") &&
+            isDownloadButton(event.target.closest("button, [role='button'], a[download]"))) {
+            return;
+        }
+        const card = findPdfCard(event.target);
+        if (!card) return;
+        const root = event.target.closest("[data-id], [data-testid='msg-container']") || card;
+        const direct = Array.from(root.querySelectorAll("button, [role='button'], a[download]")).find(isDownloadButton) as HTMLElement;
+        if (direct && !direct.contains(event.target)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            direct.click();
+        }
+    }, true);
+    console.log("[Covenant] PDF click download controller active.");
 }
 
 // -------------------------------------------------------------
@@ -419,8 +148,7 @@ let currentSettings: any = {
     privacy_blur_photos: false,
     privacy_blur_names: false,
     privacy_blur_messages: false,
-    privacy_blur_on_window_blur: false,
-    theme: "default"
+    privacy_blur_on_window_blur: false
 };
 
 function getOrCreateStyle(id: string): HTMLStyleElement {
@@ -433,29 +161,7 @@ function getOrCreateStyle(id: string): HTMLStyleElement {
     return style;
 }
 
-// 1. Live Theme Application
-function applyTheme(themeName: string) {
-    const style = getOrCreateStyle("covenant-theme-style");
-    if (!themeName || themeName === "default") {
-        style.textContent = "";
-        document.body.classList.remove("covenant-themed");
-        document.documentElement.removeAttribute("data-theme");
-        const nativeTheme = localStorage.getItem("theme");
-        if (nativeTheme !== "dark") {
-            document.body.classList.remove("dark");
-        }
-        return;
-    }
-
-    const css = getThemeCss(themeName);
-    style.textContent = css || "";
-    document.body.classList.add("dark");
-    document.body.classList.remove("light");
-    document.documentElement.setAttribute("data-theme", "dark");
-    document.body.classList.add("covenant-themed");
-}
-
-// 2. Anti-Spy Privacy
+// Anti-Spy Privacy
 function applyPrivacy(settings: any) {
     const style = getOrCreateStyle("covenant-privacy-style");
     if (!settings.privacy_enabled) {
@@ -516,7 +222,7 @@ function applyPrivacy(settings: any) {
     style.textContent = css;
 }
 
-// 3. In-Dock Covenant Gear Button (Directly above native Settings)
+// In-Dock Covenant Gear Button (Directly above native Settings)
 function injectCovenantDockButton() {
     if (document.getElementById("covenant-dock-btn")) return;
 
@@ -589,7 +295,7 @@ function injectCovenantDockButton() {
     container.insertBefore(covItem, itemWrapper);
 }
 
-// 4. In-App Covenant Settings Drawer ("Como se fosse uma opção do próprio whats, no mesmo tema e tudo")
+// In-App Covenant Settings Drawer
 let isDrawerOpen = false;
 
 function createCovenantDrawer(): HTMLElement | null {
@@ -660,7 +366,7 @@ function createCovenantDrawer(): HTMLElement | null {
             </div>
         </div>
 
-        <!-- Drawer Body (Scrollable settings list in theme) -->
+        <!-- Drawer Body (Scrollable settings list matching WhatsApp native theme) -->
         <div style="
             flex: 1;
             overflow-y: auto;
@@ -668,7 +374,7 @@ function createCovenantDrawer(): HTMLElement | null {
             background-color: var(--background-default, #ffffff);
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
             box-sizing: border-box;
         ">
             <!-- Brand Banner -->
@@ -732,71 +438,35 @@ function createCovenantDrawer(): HTMLElement | null {
                 </div>
             </div>
 
-            <!-- Section 2: Temas Exclusivos (Com Fundo de Símbolos do WhatsApp) -->
+            <!-- Section 2: Integrações Inspiradas no ZapZap -->
             <div style="display: flex; flex-direction: column; gap: 8px;">
                 <div style="font-size: 11px; font-weight: 700; color: var(--primary, #008069); text-transform: uppercase; letter-spacing: 0.8px;">
-                    🎨 Temas Personalizados (Preserva Fundo com Desenhos)
+                    ⚡ Recursos Integrados do ZapZap
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <div class="cov-theme-row" data-theme="default" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1.5px solid var(--border-list, rgba(134,150,160,0.2)); border-radius: 8px; cursor: pointer; transition: all 0.15s;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="display: flex; gap: 3px; width: 36px; height: 20px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(134,150,160,0.3);">
-                                <div style="flex: 1; background: #00a884;"></div>
-                                <div style="flex: 1; background: #f0f2f5;"></div>
-                                <div style="flex: 1; background: #111b21;"></div>
-                            </div>
-                            <span style="font-size: 13px; font-weight: 500; color: var(--primary-title, #111b21);">Padrão WhatsApp</span>
+                <div style="background-color: var(--background-default-hover, rgba(134,150,160,0.08)); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <span style="font-size: 16px;">🛡️</span>
+                        <div>
+                            <div style="font-size: 13px; font-weight: 600; color: var(--primary-title, #111b21);">Escudo de Privacidade WebRTC</div>
+                            <div style="font-size: 11px; color: var(--secondary, #667781); line-height: 1.4;">Impede vazamentos de endereço IP local ou público através de conexões WebRTC no Linux.</div>
                         </div>
-                        <span class="cov-theme-check" style="color: #00a884; font-weight: bold; display: none;">✓</span>
                     </div>
 
-                    <div class="cov-theme-row" data-theme="oled" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1.5px solid var(--border-list, rgba(134,150,160,0.2)); border-radius: 8px; cursor: pointer; transition: all 0.15s;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="display: flex; gap: 3px; width: 36px; height: 20px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(134,150,160,0.3);">
-                                <div style="flex: 1; background: #000000;"></div>
-                                <div style="flex: 1; background: #003d32;"></div>
-                                <div style="flex: 1; background: #00a884;"></div>
-                            </div>
-                            <span style="font-size: 13px; font-weight: 500; color: var(--primary-title, #111b21);">OLED True Black (Preto Absoluto)</span>
+                    <div style="display: flex; align-items: flex-start; gap: 10px; border-top: 1px solid var(--border-list, rgba(134,150,160,0.12)); padding-top: 8px;">
+                        <span style="font-size: 16px;">⌨️</span>
+                        <div>
+                            <div style="font-size: 13px; font-weight: 600; color: var(--primary-title, #111b21);">Navegação por Palavras no Texto</div>
+                            <div style="font-size: 11px; color: var(--secondary, #667781); line-height: 1.4;">Usa <kbd style="background: rgba(134,150,160,0.2); padding: 1px 4px; border-radius: 3px;">Ctrl + ← / →</kbd> para pular palavras suavemente no campo de mensagem.</div>
                         </div>
-                        <span class="cov-theme-check" style="color: #00a884; font-weight: bold; display: none;">✓</span>
                     </div>
 
-                    <div class="cov-theme-row" data-theme="dracula" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1.5px solid var(--border-list, rgba(134,150,160,0.2)); border-radius: 8px; cursor: pointer; transition: all 0.15s;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="display: flex; gap: 3px; width: 36px; height: 20px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(134,150,160,0.3);">
-                                <div style="flex: 1; background: #282a36;"></div>
-                                <div style="flex: 1; background: #bd93f9;"></div>
-                                <div style="flex: 1; background: #50fa7b;"></div>
-                            </div>
-                            <span style="font-size: 13px; font-weight: 500; color: var(--primary-title, #111b21);">Dracula Modern</span>
+                    <div style="display: flex; align-items: flex-start; gap: 10px; border-top: 1px solid var(--border-list, rgba(134,150,160,0.12)); padding-top: 8px;">
+                        <span style="font-size: 16px;">📄</span>
+                        <div>
+                            <div style="font-size: 13px; font-weight: 600; color: var(--primary-title, #111b21);">Download Otimizado de Documentos</div>
+                            <div style="font-size: 11px; color: var(--secondary, #667781); line-height: 1.4;">Baixa PDFs e arquivos diretamente ao clicar, sem prender na pré-visualização.</div>
                         </div>
-                        <span class="cov-theme-check" style="color: #00a884; font-weight: bold; display: none;">✓</span>
-                    </div>
-
-                    <div class="cov-theme-row" data-theme="catppuccin" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1.5px solid var(--border-list, rgba(134,150,160,0.2)); border-radius: 8px; cursor: pointer; transition: all 0.15s;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="display: flex; gap: 3px; width: 36px; height: 20px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(134,150,160,0.3);">
-                                <div style="flex: 1; background: #1e1e2e;"></div>
-                                <div style="flex: 1; background: #cba6f7;"></div>
-                                <div style="flex: 1; background: #89b4fa;"></div>
-                            </div>
-                            <span style="font-size: 13px; font-weight: 500; color: var(--primary-title, #111b21);">Catppuccin Mocha</span>
-                        </div>
-                        <span class="cov-theme-check" style="color: #00a884; font-weight: bold; display: none;">✓</span>
-                    </div>
-
-                    <div class="cov-theme-row" data-theme="nord" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1.5px solid var(--border-list, rgba(134,150,160,0.2)); border-radius: 8px; cursor: pointer; transition: all 0.15s;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="display: flex; gap: 3px; width: 36px; height: 20px; border-radius: 4px; overflow: hidden; border: 1px solid rgba(134,150,160,0.3);">
-                                <div style="flex: 1; background: #2e3440;"></div>
-                                <div style="flex: 1; background: #88c0d0;"></div>
-                                <div style="flex: 1; background: #81a1c1;"></div>
-                            </div>
-                            <span style="font-size: 13px; font-weight: 500; color: var(--primary-title, #111b21);">Nord Arctic</span>
-                        </div>
-                        <span class="cov-theme-check" style="color: #00a884; font-weight: bold; display: none;">✓</span>
                     </div>
                 </div>
             </div>
@@ -850,7 +520,7 @@ function createCovenantDrawer(): HTMLElement | null {
                 </div>
 
                 <div style="font-size: 12px; color: var(--secondary, #667781);">
-                    WhatsApp Desktop Linux - Covenant Edition v1.4.7
+                    WhatsApp Desktop Linux - Covenant Edition v1.4.8
                 </div>
 
                 <div style="background-color: var(--background-default-hover, rgba(134,150,160,0.08)); border-radius: 6px; padding: 10px 12px; font-size: 12px; display: flex; flex-direction: column; gap: 6px;">
@@ -872,9 +542,9 @@ function createCovenantDrawer(): HTMLElement | null {
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 10px; margin-top: 6px;">
+                <div style="margin-top: 6px;">
                     <button id="cov-btn-reset-all" style="
-                        flex: 1;
+                        width: 100%;
                         background: transparent;
                         color: #f85149;
                         border: 1px solid rgba(248, 81, 73, 0.4);
@@ -885,20 +555,6 @@ function createCovenantDrawer(): HTMLElement | null {
                         cursor: pointer;
                     ">
                         Restaurar Padrões
-                    </button>
-
-                    <button id="cov-btn-github" style="
-                        flex: 1;
-                        background: var(--background-default-hover, rgba(134,150,160,0.12));
-                        color: var(--primary-title, #111b21);
-                        border: 1px solid var(--border-list, rgba(134,150,160,0.2));
-                        font-size: 12px;
-                        font-weight: 500;
-                        padding: 8px 12px;
-                        border-radius: 6px;
-                        cursor: pointer;
-                    ">
-                        Código no GitHub
                     </button>
                 </div>
             </div>
@@ -935,16 +591,6 @@ function createCovenantDrawer(): HTMLElement | null {
         });
     }
 
-    document.querySelectorAll(".cov-theme-row").forEach(row => {
-        row.addEventListener("click", () => {
-            const themeKey = row.getAttribute("data-theme") || "default";
-            currentSettings.theme = themeKey;
-            applyTheme(themeKey);
-            ipcRenderer.send("save-covenant-settings", currentSettings);
-            syncDrawerUI();
-        });
-    });
-
     document.getElementById("cov-btn-open-account2")?.addEventListener("click", () => {
         ipcRenderer.send("open-second-account");
     });
@@ -956,18 +602,12 @@ function createCovenantDrawer(): HTMLElement | null {
             privacy_blur_photos: false,
             privacy_blur_names: false,
             privacy_blur_messages: false,
-            privacy_blur_on_window_blur: false,
-            theme: "default"
+            privacy_blur_on_window_blur: false
         };
-        applyTheme("default");
         applyPrivacy(currentSettings);
         ipcRenderer.send("save-covenant-settings", currentSettings);
         syncDrawerUI();
         showToast("Configurações restauradas para o padrão");
-    });
-
-    document.getElementById("cov-btn-github")?.addEventListener("click", () => {
-        ipcRenderer.send("open-external-url", "https://github.com/araujo791/Whatsapp-Linux-Covenant");
     });
 
     return drawer;
@@ -983,21 +623,6 @@ function syncDrawerUI() {
     keys.forEach(k => {
         const el = document.getElementById(`cov-opt-${k}`) as HTMLInputElement;
         if (el) el.checked = !!currentSettings[k];
-    });
-
-    document.querySelectorAll(".cov-theme-row").forEach(row => {
-        const el = row as HTMLElement;
-        const check = row.querySelector(".cov-theme-check") as HTMLElement;
-        const theme = row.getAttribute("data-theme");
-        if (theme === currentSettings.theme) {
-            el.style.borderColor = "#00a884";
-            el.style.backgroundColor = "var(--background-default-hover, rgba(0, 168, 132, 0.12))";
-            if (check) check.style.display = "inline";
-        } else {
-            el.style.borderColor = "var(--border-list, rgba(134,150,160,0.2))";
-            el.style.backgroundColor = "transparent";
-            if (check) check.style.display = "none";
-        }
     });
 }
 
@@ -1123,7 +748,6 @@ async function initCovenant() {
         if (loaded) {
             currentSettings = { ...currentSettings, ...loaded };
         }
-        applyTheme(currentSettings.theme);
         applyPrivacy(currentSettings);
     } catch (e) {
         console.error("Init covenant failed", e);
@@ -1132,7 +756,6 @@ async function initCovenant() {
 
 ipcRenderer.on("covenant-settings-updated", (_event, settings) => {
     currentSettings = { ...currentSettings, ...settings };
-    applyTheme(currentSettings.theme);
     applyPrivacy(currentSettings);
     syncDrawerUI();
 });
@@ -1153,10 +776,16 @@ if (document.readyState === "loading") {
     window.addEventListener("DOMContentLoaded", () => {
         initCovenant();
         startDockInjector();
+        installWebRTCShield();
+        installCtrlArrowVisualNavigationFix();
+        installPdfClickController();
     });
 } else {
     initCovenant();
     startDockInjector();
+    installWebRTCShield();
+    installCtrlArrowVisualNavigationFix();
+    installPdfClickController();
 }
 
 window.addEventListener("load", () => {

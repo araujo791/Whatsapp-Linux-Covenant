@@ -18,8 +18,7 @@ const DEFAULT_COVENANT_SETTINGS = {
     privacy_blur_photos: false,
     privacy_blur_names: false,
     privacy_blur_messages: false,
-    privacy_blur_on_window_blur: false,
-    theme: "default"
+    privacy_blur_on_window_blur: false
 };
 
 export default class WhatsApp {

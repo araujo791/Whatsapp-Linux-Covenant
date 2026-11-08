@@ -375,9 +375,8 @@
   </header>
 
   <nav class="tabs">
-    <button class="tab-btn active" data-tab="tab-layout">🪟 Barra Lateral & Layout</button>
+    <button class="tab-btn active" data-tab="tab-layout">🪟 Visualização</button>
     <button class="tab-btn" data-tab="tab-privacy">🛡️ Modo Privacidade</button>
-    <button class="tab-btn" data-tab="tab-themes">🎨 Temas</button>
     <button class="tab-btn" data-tab="tab-accounts">👥 Múltiplas Contas</button>
     <button class="tab-btn" data-tab="tab-about">ℹ️ Sobre</button>
   </nav>
@@ -467,74 +466,6 @@
     </div>
 
     <!-- TAB: TEMAS -->
-    <div class="tab-panel" id="tab-themes">
-      <div class="section-title">Temas Exclusivos para Linux</div>
-      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Selecione um tema otimizado para o visual do seu desktop.</p>
-
-      <div class="theme-grid">
-        <div class="theme-card active" data-theme="default">
-          <div class="theme-header">
-            <span>Padrão do WhatsApp</span>
-            <span>✓</span>
-          </div>
-          <div style="font-size: 11px; color: var(--text-muted);">Visual oficial inalterado</div>
-          <div class="theme-preview">
-            <div class="theme-preview-color" style="background: #111b21;"></div>
-            <div class="theme-preview-color" style="background: #202c33;"></div>
-            <div class="theme-preview-color" style="background: #00a884;"></div>
-          </div>
-        </div>
-
-        <div class="theme-card" data-theme="oled">
-          <div class="theme-header">
-            <span>OLED True Black</span>
-          </div>
-          <div style="font-size: 11px; color: var(--text-muted);">Preto absoluto (#000) e economia</div>
-          <div class="theme-preview">
-            <div class="theme-preview-color" style="background: #000000;"></div>
-            <div class="theme-preview-color" style="background: #101010;"></div>
-            <div class="theme-preview-color" style="background: #052e16;"></div>
-          </div>
-        </div>
-
-        <div class="theme-card" data-theme="catppuccin">
-          <div class="theme-header">
-            <span>Catppuccin Mocha</span>
-          </div>
-          <div style="font-size: 11px; color: var(--text-muted);">Paleta moderna pastel / roxo</div>
-          <div class="theme-preview">
-            <div class="theme-preview-color" style="background: #1e1e2e;"></div>
-            <div class="theme-preview-color" style="background: #313244;"></div>
-            <div class="theme-preview-color" style="background: #cba6f7;"></div>
-          </div>
-        </div>
-
-        <div class="theme-card" data-theme="dracula">
-          <div class="theme-header">
-            <span>Dracula Theme</span>
-          </div>
-          <div style="font-size: 11px; color: var(--text-muted);">Contraste clássico vampírico</div>
-          <div class="theme-preview">
-            <div class="theme-preview-color" style="background: #282a36;"></div>
-            <div class="theme-preview-color" style="background: #44475a;"></div>
-            <div class="theme-preview-color" style="background: #bd93f9;"></div>
-          </div>
-        </div>
-
-        <div class="theme-card" data-theme="nord">
-          <div class="theme-header">
-            <span>Nord Arctic</span>
-          </div>
-          <div style="font-size: 11px; color: var(--text-muted);">Tons frios azuis do ártico</div>
-          <div class="theme-preview">
-            <div class="theme-preview-color" style="background: #2e3440;"></div>
-            <div class="theme-preview-color" style="background: #3b4252;"></div>
-            <div class="theme-preview-color" style="background: #88c0d0;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- TAB: MÚLTIPLAS CONTAS -->
     <div class="tab-panel" id="tab-accounts">
       <div class="section-title">Sessões Simultâneas</div>
@@ -561,11 +492,10 @@
       <div class="card" style="text-align: center; padding: 24px;">
         <img src="covenant-logo.png" style="max-width: 240px; margin-bottom: 12px;" alt="Covenant">
         <h3 style="font-size: 16px; margin-bottom: 6px;">WhatsApp Desktop for Linux (Covenant Edition)</h3>
-        <p style="font-size: 13px; color: var(--gold); font-weight: 600; margin-bottom: 14px;">Versão 1.4.0</p>
+        <p style="font-size: 13px; color: var(--gold); font-weight: 600; margin-bottom: 14px;">Versão 1.4.8</p>
         <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5; max-width: 480px; margin: 0 auto 18px auto;">
-          Desenvolvido com foco no ecossistema Linux, integrando aceleração nativa por Wayland, suporte a chamadas e áudio, temas customizados e ferramentas exclusivas de privacidade e produtividade.
+          Desenvolvido com foco no ecossistema Linux, integrando aceleração nativa por Wayland, suporte a chamadas e áudio, escudo WebRTC, navegação aprimorada e ferramentas exclusivas de privacidade e produtividade.
         </p>
-        <button class="btn" id="btn-open-github">🌐 Ver no GitHub</button>
       </div>
     </div>
 
@@ -591,8 +521,7 @@
       privacy_blur_photos: false,
       privacy_blur_names: false,
       privacy_blur_messages: false,
-      privacy_blur_on_window_blur: false,
-      theme: 'default'
+      privacy_blur_on_window_blur: false
     };
 
     // Tab navigation
@@ -602,23 +531,6 @@
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById(btn.dataset.tab).classList.add('active');
-      });
-    });
-
-    // Theme selector
-    document.querySelectorAll('.theme-card').forEach(card => {
-      card.addEventListener('click', () => {
-        document.querySelectorAll('.theme-card').forEach(c => {
-          c.classList.remove('active');
-          const header = c.querySelector('.theme-header');
-          if (header.children[1]) header.children[1].remove();
-        });
-        card.classList.add('active');
-        const check = document.createElement('span');
-        check.innerText = '✓';
-        card.querySelector('.theme-header').appendChild(check);
-        currentSettings.theme = card.dataset.theme;
-        autoSave();
       });
     });
 
@@ -656,19 +568,6 @@
         const el = document.getElementById(f);
         if (el) el.checked = !!currentSettings[f];
       });
-
-      // Theme UI
-      document.querySelectorAll('.theme-card').forEach(c => {
-        c.classList.remove('active');
-        const header = c.querySelector('.theme-header');
-        if (header.children[1]) header.children[1].remove();
-        if (c.dataset.theme === currentSettings.theme) {
-          c.classList.add('active');
-          const check = document.createElement('span');
-          check.innerText = '✓';
-          header.appendChild(check);
-        }
-      });
     }
 
     function autoSave() {
@@ -687,8 +586,7 @@
         privacy_blur_photos: false,
         privacy_blur_names: false,
         privacy_blur_messages: false,
-        privacy_blur_on_window_blur: false,
-        theme: 'default'
+        privacy_blur_on_window_blur: false
       };
       ipcRenderer.send('save-covenant-settings', currentSettings);
       init();
@@ -696,10 +594,6 @@
 
     document.getElementById('btn-open-account2').addEventListener('click', () => {
       ipcRenderer.send('open-second-account');
-    });
-
-    document.getElementById('btn-open-github').addEventListener('click', () => {
-      shell.openExternal('https://github.com/araujo791/Whatsapp-Linux-Covenant');
     });
 
     init();

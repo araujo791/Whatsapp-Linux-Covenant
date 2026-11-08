@@ -38,6 +38,17 @@
   </screenshots>
 
   <releases>
+    <release version="1.4.8" date="2026-11-08">
+      <description>
+        <p>ZapZap Enhancements Integration &amp; Clean Native Experience Release:</p>
+        <ul>
+          <li>Adopted ZapZap features: WebRTC IP Privacy Shield, Ctrl+Arrow word navigation fix in message composer, and direct document click controller</li>
+          <li>Removed custom theme overrides to let WhatsApp Web render 100% natively in official Dark or Light mode</li>
+          <li>Removed external GitHub button from Covenant settings options</li>
+          <li>Clean native drawer interface integrated directly above WhatsApp Settings button with transparent Covenant gear icon</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.7" date="2026-11-08">
       <description>
         <p>Full Window Theming Release:</p>
