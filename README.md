@@ -26,7 +26,14 @@ This wrapper is not verified by, affiliated with, or supported by WhatsApp Inc.
 
 ## 💾 Installation & Building
 
-### 1. Requirements
+### 🖱️ Arch Linux / CachyOS (AUR)
+```bash
+yay -S whatsapp-linux-covenant
+# ou
+paru -S whatsapp-linux-covenant
+```
+
+### 1. Requirements (para compilar da fonte)
 - Node.js (v20+ recommended)
 - npm
 
