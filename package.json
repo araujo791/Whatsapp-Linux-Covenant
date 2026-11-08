@@ -43,6 +43,7 @@
       "data/**"
     ],
     "linux": {
+      "executableName": "whatsapp-linux-covenant",
       "category": "Network;Chat;InstantMessaging;",
       "target": [
         "AppImage",
@@ -51,7 +52,7 @@
       ],
       "icon": "data/icons/hicolor/512x512/apps/io.github.covenant.WhatsAppDesktop.png",
       "desktop": {
-        "StartupWMClass": "whatsapp-desktop-linux"
+        "StartupWMClass": "whatsapp-linux-covenant"
       }
     }
   }

@@ -1,9 +1,8 @@
 [Desktop Entry]
-
 Name=WhatsApp Desktop
-Exec=whatsapp-desktop-linux
+Exec=whatsapp-linux-covenant %U
 Type=Application
 Icon=io.github.covenant.WhatsAppDesktop
-Comment=An unofficial WhatsApp client for Linux, built with Electron.
+Comment=An unofficial WhatsApp client for Linux (Covenant Edition), built with Electron.
 Categories=Utility;Network;Chat;InstantMessaging;
-StartupWMClass=whatsapp-desktop-linux
+StartupWMClass=whatsapp-linux-covenant
