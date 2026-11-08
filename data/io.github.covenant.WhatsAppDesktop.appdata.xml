@@ -38,6 +38,17 @@
   </screenshots>
 
   <releases>
+    <release version="1.4.9" date="2026-11-08">
+      <description>
+        <p>Dynamic System and WhatsApp Dark Mode Theme Integration:</p>
+        <ul>
+          <li>Integrated Electron nativeTheme.themeSource = 'system' to seamlessly synchronize OS dark/light mode</li>
+          <li>Redesigned Covenant Settings Drawer styles to automatically match WhatsApp dark mode palette (#111b21 background, #202c33 cards, #e9edef text)</li>
+          <li>Real-time theme watcher synchronizing drawer colors whenever WhatsApp or the system theme changes</li>
+          <li>Fixed white drawer box and invisible text in dark mode</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.8" date="2026-11-08">
       <description>
         <p>ZapZap Enhancements Integration &amp; Clean Native Experience Release:</p>

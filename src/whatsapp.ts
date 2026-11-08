@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, session, Session, shell } from "electron";
+import { app, BrowserWindow, ipcMain, nativeTheme, session, Session, shell } from "electron";
 import path from "path";
 import ChromeVersionFix from "./fix/chrome-version-fix";
 import Electron21Fix from "./fix/electron-21-fix";
@@ -30,6 +30,8 @@ export default class WhatsApp {
     public quitting = false;
 
     constructor() {
+        nativeTheme.themeSource = "system";
+
         this.window = new BrowserWindow({
             title: "WhatsApp",
             width: 1100,
