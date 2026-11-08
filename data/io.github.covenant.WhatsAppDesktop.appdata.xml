@@ -38,6 +38,17 @@
   </screenshots>
 
   <releases>
+    <release version="1.4.1" date="2026-11-08">
+      <description>
+        <p>Enhancements and UX refinements:</p>
+        <ul>
+          <li>Sidebar resizing is now completely natural and automatic: simply hover and drag the chat list border without needing to toggle any options</li>
+          <li>In-page Covenant Settings Modal: opens seamlessly directly inside WhatsApp Web without opening external windows (Ctrl+,)</li>
+          <li>Covenant Gear icon placed at the bottom of the left navigation rail, right above WhatsApp's native settings</li>
+          <li>Themes now apply automatically in real time across the entire interface (OLED, Dracula, Catppuccin, Nord)</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.0" date="2026-11-08">
       <description>
         <p>Exclusive Covenant Features (disabled by default, configurable in Settings):</p>

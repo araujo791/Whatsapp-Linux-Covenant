@@ -1,5 +1,4 @@
 import { app, BrowserWindow, ipcMain, session, Session, shell } from "electron";
-import fs from "fs";
 import path from "path";
 import ChromeVersionFix from "./fix/chrome-version-fix";
 import Electron21Fix from "./fix/electron-21-fix";
@@ -14,8 +13,7 @@ const CHROME_VERSION = process.versions.chrome || "130.0.6723.116";
 const USER_AGENT = `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_VERSION} Safari/537.36`;
 
 const DEFAULT_COVENANT_SETTINGS = {
-    sidebar_resizable: false,
-    sidebar_width: 400,
+    sidebar_width: null,
     always_on_top: false,
     privacy_enabled: false,
     privacy_blur_photos: false,
@@ -30,7 +28,6 @@ export default class WhatsApp {
     private readonly window: BrowserWindow;
     private readonly moduleManager: ModuleManager;
     private readonly covenantSettings = new Settings("covenant");
-    private settingsWindow: BrowserWindow | null = null;
     private secondAccountWindow: BrowserWindow | null = null;
     public quitting = false;
 
@@ -84,9 +81,6 @@ export default class WhatsApp {
 
     public quit() {
         this.quitting = true;
-        if (this.settingsWindow && !this.settingsWindow.isDestroyed()) {
-            this.settingsWindow.close();
-        }
         if (this.secondAccountWindow && !this.secondAccountWindow.isDestroyed()) {
             this.secondAccountWindow.close();
         }
@@ -128,34 +122,11 @@ export default class WhatsApp {
         this.saveCovenantSettings(settings);
     }
 
+    // Opens the in-page Covenant options modal directly inside WhatsApp Web
     public openSettings() {
-        if (this.settingsWindow && !this.settingsWindow.isDestroyed()) {
-            this.settingsWindow.show();
-            this.settingsWindow.focus();
-            return;
-        }
-
-        this.settingsWindow = new BrowserWindow({
-            title: "Covenant - Configurações Exclusivas",
-            width: 800,
-            height: 700,
-            minWidth: 640,
-            minHeight: 520,
-            parent: this.window,
-            modal: false,
-            autoHideMenuBar: true,
-            webPreferences: {
-                nodeIntegration: true,
-                contextIsolation: false
-            }
-        });
-
-        this.settingsWindow.setMenu(null);
-        this.settingsWindow.loadFile(path.join(__dirname, 'view', 'settings.html'));
-
-        this.settingsWindow.on('closed', () => {
-            this.settingsWindow = null;
-        });
+        this.window.show();
+        this.window.focus();
+        this.window.webContents.send("open-covenant-modal");
     }
 
     public openSecondAccount() {
@@ -239,21 +210,6 @@ export default class WhatsApp {
 
         ipcMain.on('save-covenant-settings', (_event, settings: any) => {
             this.saveCovenantSettings(settings);
-        });
-
-        ipcMain.handle('get-theme-css', async (_event, themeName: string) => {
-            if (!themeName || !/^[a-zA-Z0-9_-]+$/.test(themeName)) {
-                return "";
-            }
-            const themePath = path.join(__dirname, 'themes', `${themeName}.css`);
-            try {
-                if (fs.existsSync(themePath)) {
-                    return fs.readFileSync(themePath, 'utf8');
-                }
-            } catch (e) {
-                console.error("Error reading theme file:", e);
-            }
-            return "";
         });
 
         ipcMain.on('open-covenant-settings', () => this.openSettings());
