@@ -38,6 +38,18 @@
   </screenshots>
 
   <releases>
+    <release version="1.4.5" date="2026-11-08">
+      <description>
+        <p>Covenant In-App Experience and Layout Polish Release:</p>
+        <ul>
+          <li>Integrated native-style WhatsApp settings drawer embedded directly in the chat sidebar matching light/dark theme seamlessly</li>
+          <li>Transparent background for the exclusive Covenant gear with lightning icon</li>
+          <li>Draggable vertical splitter line between chats and conversation with zero contacts list deformation</li>
+          <li>Instant live theme switching, anti-spy privacy, and isolated second account support</li>
+          <li>Optimized build pipeline using system RAM for ultra-fast packaging</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.4" date="2026-11-08">
       <description>
         <p>UX and reliability release:</p>

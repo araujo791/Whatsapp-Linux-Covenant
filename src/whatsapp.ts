@@ -62,7 +62,7 @@ export default class WhatsApp {
 
         // Apply covenant settings if previously configured and clear old deforming sidebar widths
         const current = this.getCovenantSettings();
-        if (current.sidebar_width) {
+        if (current.sidebar_width && current.sidebar_width <= 360) {
             current.sidebar_width = null;
             this.covenantSettings.set("config", current);
         }
