@@ -445,11 +445,6 @@ function applySidebarWidth(width?: number | null) {
             min-width: 260px !important;
             max-width: 850px !important;
             flex: 0 0 ${width}px !important;
-            height: 100% !important;
-        }
-        #side > div, #pane-side {
-            width: 100% !important;
-            height: 100% !important;
         }
     `;
     window.dispatchEvent(new Event("resize"));
@@ -529,62 +524,40 @@ window.addEventListener("mouseup", () => {
     ipcRenderer.send("save-covenant-settings", currentSettings);
 });
 
-// 4. In-Dock Covenant Gear Button (Directly at the Blue Arrow)
-function findSettingsGearTarget(): { parent: HTMLElement; referenceNode: HTMLElement | null } | null {
-    // Strategy 1: Look for WhatsApp settings button by label in left dock
-    const settingsBtn = document.querySelector<HTMLElement>(
-        '#app > div > div > div:first-child button[aria-label*="Configuraç"], ' +
-        '#app > div > div > div:first-child button[title*="Configuraç"], ' +
-        '#app > div > div > div:first-child div[aria-label*="Configuraç"], ' +
-        '#app > div > div > div:first-child div[title*="Configuraç"], ' +
-        '#app > div > div > div:first-child button[aria-label*="Setting"], ' +
-        '#app > div > div > div:first-child button[title*="Setting"], ' +
-        '#app > div > div > div:first-child span[data-icon="settings"], ' +
-        '#app > div > div > div:first-child span[data-icon="settings-outline"]'
-    );
-
-    if (settingsBtn) {
-        const btn = (settingsBtn.closest("button, div[role='button']") as HTMLElement) || settingsBtn;
-        if (btn.parentElement) {
-            return { parent: btn.parentElement, referenceNode: btn };
-        }
-    }
-
-    // Strategy 2: Look for avatar at bottom of rail and insert above it
-    const avatar = document.querySelector<HTMLElement>(
-        '#app > div > div > div:first-child img[src*="user"], ' +
-        '#app > div > div > div:first-child img[src*="profile"]'
-    );
-    if (avatar) {
-        const btn = (avatar.closest("button, div[role='button']") as HTMLElement) || avatar;
-        if (btn.parentElement) {
-            return { parent: btn.parentElement, referenceNode: btn };
-        }
-    }
-
-    // Strategy 3: Left rail container
-    const leftRail = document.querySelector<HTMLElement>("#app > div > div > div:first-child");
-    if (leftRail) {
-        return { parent: leftRail, referenceNode: null };
-    }
-
-    return null;
-}
-
+// 4. In-Dock Covenant Gear Button (Directly above Settings at the Blue Arrow)
 function injectCovenantDockButton() {
     if (document.getElementById("covenant-dock-btn")) return;
 
-    const target = findSettingsGearTarget();
-    if (!target) return;
+    // Look for WhatsApp settings button in the left dock
+    const settingsBtn = document.querySelector<HTMLElement>(
+        'button[aria-label*="Configuraç"], button[aria-label*="Setting"], ' +
+        'div[role="button"][aria-label*="Configuraç"], div[role="button"][aria-label*="Setting"], ' +
+        'span[data-icon="settings"], span[data-icon="settings-refreshed"], span[data-icon="settings-outline"]'
+    );
+    if (!settingsBtn) return;
+
+    const actualBtn = (settingsBtn.closest('button, div[role="button"]') as HTMLElement) || settingsBtn;
+
+    // Ascend to the item wrapper inside the dock container
+    let itemWrapper: HTMLElement = actualBtn;
+    while (itemWrapper.parentElement && itemWrapper.parentElement.tagName === 'DIV' && itemWrapper.parentElement.children.length === 1) {
+        itemWrapper = itemWrapper.parentElement;
+    }
+    const container = itemWrapper.parentElement;
+    if (!container) return;
+
+    const covItem = document.createElement("div");
+    covItem.id = "covenant-dock-item";
+    covItem.style.cssText = "display: flex; justify-content: center; align-items: center; margin: 4px 0;";
 
     const btn = document.createElement("button");
     btn.id = "covenant-dock-btn";
+    btn.type = "button";
     btn.title = "Configurações Covenant (Ctrl+,)";
     btn.setAttribute("aria-label", "Configurações Covenant");
     btn.style.cssText = `
-        width: 42px;
-        height: 42px;
-        margin: 4px auto;
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
         border: none;
         background: transparent;
@@ -599,13 +572,13 @@ function injectCovenantDockButton() {
 
     btn.innerHTML = `
         <img src="data:image/png;base64,${COVENANT_SYMBOL_B64}" 
-             style="width: 26px; height: 26px; object-fit: contain; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));"
+             style="width: 28px; height: 28px; object-fit: contain; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));"
              alt="Covenant">
     `;
 
     btn.addEventListener("mouseenter", () => {
-        btn.style.background = "rgba(0, 168, 132, 0.22)";
-        btn.style.transform = "scale(1.1)";
+        btn.style.background = "rgba(0, 168, 132, 0.25)";
+        btn.style.transform = "scale(1.12)";
     });
     btn.addEventListener("mouseleave", () => {
         btn.style.background = "transparent";
@@ -617,11 +590,9 @@ function injectCovenantDockButton() {
         toggleCovenantModal();
     });
 
-    if (target.referenceNode && target.referenceNode.parentElement === target.parent) {
-        target.parent.insertBefore(btn, target.referenceNode);
-    } else {
-        target.parent.appendChild(btn);
-    }
+    covItem.appendChild(btn);
+    // Inserts directly above the WhatsApp Settings button in the left dock (at the blue arrow!)
+    container.insertBefore(covItem, itemWrapper);
 }
 
 // 5. In-Page Covenant Settings Modal (No extra windows, seamless in-app dialog)
@@ -1071,17 +1042,20 @@ window.addEventListener("keydown", (e) => {
     }
 });
 
-// Periodic setup & DOM observation
-setInterval(() => {
+// Controlled dock button injection and initialization (Zero MutationObserver CPU spike)
+function startDockInjector() {
     injectCovenantDockButton();
     setupDraggableSplitter();
-}, 1000);
 
-const observer = new MutationObserver(() => {
-    injectCovenantDockButton();
-    setupDraggableSplitter();
-});
-observer.observe(document.documentElement, { childList: true, subtree: true });
+    const interval = setInterval(() => {
+        if (!document.getElementById("covenant-dock-btn")) {
+            injectCovenantDockButton();
+        }
+        if (!document.getElementById("covenant-splitter")) {
+            setupDraggableSplitter();
+        }
+    }, 1500);
+}
 
 async function initCovenant() {
     try {
@@ -1121,8 +1095,17 @@ ipcRenderer.on("toggle-privacy-mode", () => {
     showToast(currentSettings.privacy_enabled ? "🛡️ Modo Privacidade: Ativado" : "🛡️ Modo Privacidade: Desativado");
 });
 
-window.addEventListener("DOMContentLoaded", () => {
+if (document.readyState === "loading") {
+    window.addEventListener("DOMContentLoaded", () => {
+        initCovenant();
+        startDockInjector();
+    });
+} else {
     initCovenant();
+    startDockInjector();
+}
+
+window.addEventListener("load", () => {
     injectCovenantDockButton();
     setupDraggableSplitter();
 });

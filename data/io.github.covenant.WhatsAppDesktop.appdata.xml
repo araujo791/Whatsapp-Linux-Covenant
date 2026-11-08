@@ -38,6 +38,18 @@
   </screenshots>
 
   <releases>
+    <release version="1.4.4" date="2026-11-08">
+      <description>
+        <p>UX and reliability release:</p>
+        <ul>
+          <li>Fixed preload startup crash caused by early MutationObserver execution</li>
+          <li>Properly located WhatsApp left dock navigation bar and injected Covenant gear button directly above WhatsApp Settings</li>
+          <li>In-page modal settings dialog with live theme application and anti-spy privacy options</li>
+          <li>Preserved 100% native layout fidelity with zero chat list deformation</li>
+          <li>Clean system tray menu</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.3" date="2026-11-08">
       <description>
         <p>Fixes and requested UX adjustments:</p>
