@@ -208,8 +208,18 @@ export default class WhatsApp {
             return this.getCovenantSettings();
         });
 
+        this.window.webContents.on('preload-error', (_event, preloadPath, error) => {
+            console.error('PRELOAD ERROR in', preloadPath, error);
+        });
+
         ipcMain.on('save-covenant-settings', (_event, settings: any) => {
             this.saveCovenantSettings(settings);
+        });
+
+        ipcMain.on('open-external-url', (_event, url: string) => {
+            if (url && (url.startsWith('https://') || url.startsWith('http://'))) {
+                shell.openExternal(url);
+            }
         });
 
         ipcMain.on('open-covenant-settings', () => this.openSettings());

@@ -38,6 +38,16 @@
   </screenshots>
 
   <releases>
+    <release version="1.4.2" date="2026-11-08">
+      <description>
+        <p>Fixes and stability improvements:</p>
+        <ul>
+          <li>Fixed preload script module resolution by making preload 100% self-contained</li>
+          <li>Ensured dock gear button and floating fallback are visible under all circumstances</li>
+          <li>Fixed tray menu actions and keyboard shortcuts</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.1" date="2026-11-08">
       <description>
         <p>Enhancements and UX refinements:</p>
