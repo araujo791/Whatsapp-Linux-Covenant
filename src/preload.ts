@@ -33,17 +33,184 @@ function handleChromeVersionBug() {
 }
 
 // -------------------------------------------------------------
-// COVENANT THEME STYLES (Preserving WhatsApp Doodle Wallpaper & Uniform Sidebar)
+// COVENANT FULL-WINDOW THEME ENGINE
+// Colors 100% of the window: Left Rail, Headers, Chats, Cards, Composer & Wallpapers
 // -------------------------------------------------------------
-function getThemeCss(theme: string): string {
-    const wallpaperFix = `
-        /* Keep conversation panel body transparent so the WhatsApp doodle wallpaper is ALWAYS visible */
+interface ThemeConfig {
+    bg: string;
+    convBg: string;
+    headerBg: string;
+    hover: string;
+    active: string;
+    inputBg: string;
+    incomingBg: string;
+    incomingBgDeeper: string;
+    outgoingBg: string;
+    outgoingBgDeeper: string;
+    primary: string;
+    text: string;
+    secondary: string;
+    headerIcon: string;
+    border: string;
+    iconRule?: string;
+}
+
+function buildThemeCss(t: ThemeConfig): string {
+    return `
+        /* 1. Global & Root Variables */
+        :root, html, body, body.dark, [data-theme="dark"], #app, div.web {
+            --app-background: ${t.bg} !important;
+            --background-default: ${t.bg} !important;
+            --background-default-hover: ${t.hover} !important;
+            --background-default-active: ${t.active} !important;
+            --conversation-panel-background: ${t.convBg} !important;
+            --panel-header-background: ${t.headerBg} !important;
+            --panel-header-icon: ${t.headerIcon} !important;
+            --search-input-background: ${t.inputBg} !important;
+            --incoming-background: ${t.incomingBg} !important;
+            --incoming-background-deeper: ${t.incomingBgDeeper} !important;
+            --outgoing-background: ${t.outgoingBg} !important;
+            --outgoing-background-deeper: ${t.outgoingBgDeeper} !important;
+            --primary: ${t.primary} !important;
+            --primary-strong: ${t.primary} !important;
+            --primary-title: ${t.text} !important;
+            --secondary: ${t.secondary} !important;
+            --message-primary: ${t.text} !important;
+            --message-secondary: ${t.secondary} !important;
+            --compose-input-background: ${t.inputBg} !important;
+            --compose-input-border: ${t.border} !important;
+            --border-default: ${t.border} !important;
+            --border-list: ${t.border} !important;
+            --border-strong: ${t.border} !important;
+            --modal-background: ${t.bg} !important;
+            --dropdown-background: ${t.hover} !important;
+        }
+
+        /* 2. Entire Window Shell */
+        html, body, #app, #app > div, #app > div > div {
+            background-color: ${t.bg} !important;
+            color: ${t.text} !important;
+        }
+
+        /* 3. Left Navigation Rail (Dock with WhatsApp, chats, settings icons) */
+        #app > div > div > header,
+        #app > div > div > div:first-child,
+        header[role="region"],
+        div[role="navigation"],
+        nav {
+            background-color: ${t.headerBg} !important;
+            border-right: 1px solid ${t.border} !important;
+        }
+        #app > div > div > header button,
+        div[role="navigation"] button,
+        nav button {
+            color: ${t.secondary} !important;
+        }
+        #app > div > div > header button:hover,
+        div[role="navigation"] button:hover {
+            background-color: ${t.hover} !important;
+        }
+
+        /* 4. Sidebar: Header ("WhatsApp", 3 dots, new chat) & Search */
+        #side,
+        #side > header,
+        #side header,
+        #side > div:first-child,
+        div[data-testid="chatlist-header"],
+        header._ak4w {
+            background-color: ${t.headerBg} !important;
+            border-bottom: 1px solid ${t.border} !important;
+            color: ${t.text} !important;
+        }
+        div[data-testid="chat-list-search"] {
+            background-color: ${t.headerBg} !important;
+        }
+        div[data-testid="chat-list-search"] div[contenteditable="true"],
+        div[data-testid="chat-list-search"] input,
+        #side div[role="textbox"] {
+            background-color: ${t.inputBg} !important;
+            color: ${t.text} !important;
+            border: 1px solid ${t.border} !important;
+        }
+        /* Search Filter Pills */
+        div[data-testid="chat-list-search"] button,
+        #side button[role="tab"],
+        #side div[role="tablist"] button {
+            background-color: ${t.inputBg} !important;
+            color: ${t.text} !important;
+            border: 1px solid ${t.border} !important;
+        }
+        div[data-testid="chat-list-search"] button[aria-selected="true"],
+        #side button[role="tab"][aria-selected="true"],
+        #side div[role="tablist"] button[aria-selected="true"] {
+            background-color: ${t.outgoingBg} !important;
+            color: ${t.primary} !important;
+            border-color: ${t.primary} !important;
+        }
+
+        /* 5. Sidebar: Chat List Items */
+        #pane-side,
+        #pane-side > div,
+        #pane-side div[role="listitem"],
+        #pane-side div[role="listitem"] > div,
+        #pane-side div[role="row"],
+        #pane-side div[data-testid="cell-frame-container"],
+        #pane-side div[tabindex] {
+            background-color: ${t.bg} !important;
+        }
+        #pane-side div[role="listitem"]:hover,
+        #pane-side div[role="listitem"]:hover > div,
+        #pane-side div[data-testid="cell-frame-container"]:hover {
+            background-color: ${t.hover} !important;
+        }
+        #pane-side div[role="listitem"][aria-selected="true"],
+        #pane-side div[role="listitem"][aria-selected="true"] > div,
+        #pane-side div[data-testid="cell-frame-container"][aria-selected="true"],
+        #pane-side div[aria-selected="true"] {
+            background-color: ${t.active} !important;
+        }
+        #side span[dir="auto"],
+        #pane-side div[data-testid="cell-frame-title"],
+        #side header span {
+            color: ${t.text} !important;
+        }
+        #pane-side div[data-testid="cell-frame-secondary"],
+        #side span[data-testid="status-time"] {
+            color: ${t.secondary} !important;
+        }
+
+        /* 6. Main Chat Area: Header */
+        #main header,
+        #main > header,
+        #main > div > header {
+            background-color: ${t.headerBg} !important;
+            border-bottom: 1px solid ${t.border} !important;
+            border-left: 1px solid ${t.border} !important;
+            color: ${t.text} !important;
+        }
+        #main header span[dir="auto"],
+        #main header div[role="button"] span {
+            color: ${t.text} !important;
+        }
+        #main header svg,
+        #main header button {
+            color: ${t.secondary} !important;
+            fill: currentColor !important;
+        }
+
+        /* 7. Main Chat Area: Body & Doodle Wallpaper */
+        #main,
+        div[data-testid="conversation-panel-wrapper"] {
+            background-color: ${t.convBg} !important;
+            border-left: 1px solid ${t.border} !important;
+        }
+        /* Keep messages container transparent so wallpaper is visible */
         div[data-testid="conversation-panel-body"],
         div[data-testid="conversation-panel-wrapper"] > div[tabindex],
         div[data-testid="conversation-panel-wrapper"] > div:not([data-testid="chat-bg-dark"]):not([data-testid="chat-bg-light"]) {
             background-color: transparent !important;
         }
-        /* Ensure doodle wallpaper layer displays clearly with all WhatsApp symbols */
+        /* Preserve WhatsApp official doodle wallpaper symbols */
         [data-asset-chat-background-dark="true"],
         [data-asset-chat-background-light="true"],
         span[data-testid="chat-bg-dark"],
@@ -54,396 +221,189 @@ function getThemeCss(theme: string): string {
             display: block !important;
             visibility: visible !important;
         }
-    `;
 
+        /* 8. Message Bubbles */
+        /* Incoming Messages */
+        .message-in,
+        .message-in > div,
+        div[data-testid="msg-container"] .message-in,
+        div[data-testid="msg-container"] .message-in > div,
+        div[data-testid="msg-container"] .message-in div[role="row"],
+        div[data-testid="msg-container"] .message-in .copyable-text,
+        div[data-testid="msg-container"] .message-in div[data-testid*="catalog"],
+        div[data-testid="msg-container"] .message-in div[data-testid*="order"] {
+            background-color: ${t.incomingBg} !important;
+            color: ${t.text} !important;
+        }
+        div.message-in span[dir="auto"],
+        div.message-in div,
+        div.message-in p {
+            color: ${t.text} !important;
+        }
+        span[data-testid="tail-in"] svg path,
+        span[data-testid="tail-in"] svg {
+            fill: ${t.incomingBg} !important;
+        }
+
+        /* Outgoing Messages */
+        .message-out,
+        .message-out > div,
+        div[data-testid="msg-container"] .message-out,
+        div[data-testid="msg-container"] .message-out > div,
+        div[data-testid="msg-container"] .message-out div[role="row"],
+        div[data-testid="msg-container"] .message-out .copyable-text {
+            background-color: ${t.outgoingBg} !important;
+            color: ${t.text} !important;
+        }
+        div.message-out span[dir="auto"],
+        div.message-out div,
+        div.message-out p {
+            color: ${t.text} !important;
+        }
+        span[data-testid="tail-out"] svg path,
+        span[data-testid="tail-out"] svg {
+            fill: ${t.outgoingBg} !important;
+        }
+
+        /* Date Badges & System Notices */
+        div[data-testid="system-message-container"] > div,
+        div[data-testid="conversation-panel-wrapper"] div[role="region"] > div {
+            background-color: ${t.hover} !important;
+            color: ${t.secondary} !important;
+            border: 1px solid ${t.border} !important;
+        }
+
+        /* 9. Main Chat Area: Footer / Composer */
+        #main footer,
+        #main > footer,
+        footer {
+            background-color: ${t.headerBg} !important;
+            border-top: 1px solid ${t.border} !important;
+            border-left: 1px solid ${t.border} !important;
+        }
+        #main footer div[contenteditable="true"],
+        #main footer div[role="textbox"],
+        #main footer input {
+            background-color: ${t.inputBg} !important;
+            color: ${t.text} !important;
+            border: 1px solid ${t.border} !important;
+        }
+        #main footer button,
+        #main footer svg {
+            color: ${t.secondary} !important;
+            fill: currentColor !important;
+        }
+
+        /* 10. Drawers & Info Panels */
+        div[data-testid="chat-info-drawer"],
+        div[role="region"][aria-label*="dados"],
+        div[role="region"][aria-label*="info"],
+        div[data-testid="drawer-right"] {
+            background-color: ${t.bg} !important;
+            color: ${t.text} !important;
+            border-left: 1px solid ${t.border} !important;
+        }
+
+        /* 11. Dropdown Menus & Popups */
+        div[role="application"] > div[tabindex],
+        div[data-testid="popup-contents"],
+        div[data-testid="dropdown"],
+        div[role="menu"] {
+            background-color: ${t.hover} !important;
+            color: ${t.text} !important;
+            border: 1px solid ${t.border} !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+        }
+        div[role="menu"] div[role="button"]:hover,
+        div[role="menu"] li:hover {
+            background-color: ${t.active} !important;
+        }
+
+        ${t.iconRule || ""}
+    `;
+}
+
+function getThemeCss(theme: string): string {
     switch (theme) {
         case "oled":
-            return `
-                :root, html, body.dark, [data-theme="dark"], #app {
-                    --app-background: #000000 !important;
-                    --background-default: #000000 !important;
-                    --background-default-hover: #0d0d0d !important;
-                    --background-default-active: #141414 !important;
-                    --conversation-panel-background: #000000 !important;
-                    --panel-header-background: #000000 !important;
-                    --panel-header-icon: #aebac1 !important;
-                    --search-input-background: #0d0d0d !important;
-                    --incoming-background: #111111 !important;
-                    --incoming-background-deeper: #0a0a0a !important;
-                    --outgoing-background: #003d32 !important;
-                    --outgoing-background-deeper: #002d24 !important;
-                    --primary: #00a884 !important;
-                    --primary-strong: #00a884 !important;
-                    --primary-title: #ffffff !important;
-                    --secondary: #8696a0 !important;
-                    --message-primary: #ffffff !important;
-                    --message-secondary: #8696a0 !important;
-                    --compose-input-background: #0d0d0d !important;
-                    --compose-input-border: #1a1a1a !important;
-                    --border-default: #141414 !important;
-                    --border-list: #111111 !important;
-                    --border-strong: #1a1a1a !important;
-                    --modal-background: #000000 !important;
-                    --dropdown-background: #0d0d0d !important;
-                }
-                #app > div > div > div:first-child {
-                    background-color: #000000 !important;
-                    border-right: 1px solid #141414 !important;
-                }
-                /* Uniform dark sidebar rows - prevents zebra striping */
-                #side, #side header, #pane-side,
-                #pane-side > div,
-                #pane-side div[role="listitem"],
-                #pane-side div[role="listitem"] > div,
-                #pane-side div[role="row"],
-                #pane-side div[data-testid="cell-frame-container"],
-                #pane-side div[tabindex],
-                div[data-testid="chat-list-search"] {
-                    background-color: #000000 !important;
-                }
-                #pane-side div[role="listitem"]:hover,
-                #pane-side div[role="listitem"]:hover > div,
-                #pane-side div[data-testid="cell-frame-container"]:hover {
-                    background-color: #0d0d0d !important;
-                }
-                #pane-side div[role="listitem"][aria-selected="true"],
-                #pane-side div[role="listitem"][aria-selected="true"] > div,
-                #pane-side div[data-testid="cell-frame-container"][aria-selected="true"],
-                #pane-side div[aria-selected="true"] {
-                    background-color: #141414 !important;
-                }
-                /* Filter chips */
-                div[data-testid="chat-list-search"] button,
-                #side button[role="tab"],
-                #side div[role="tablist"] button {
-                    background-color: #111111 !important;
-                    color: #ffffff !important;
-                    border: 1px solid #222222 !important;
-                }
-                div[data-testid="chat-list-search"] button[aria-selected="true"],
-                #side button[role="tab"][aria-selected="true"],
-                #side div[role="tablist"] button[aria-selected="true"] {
-                    background-color: #003d32 !important;
-                    color: #00a884 !important;
-                    border-color: #00a884 !important;
-                }
-                #main, div[data-testid="conversation-panel-wrapper"] {
-                    background-color: #000000 !important;
-                }
-                div.message-in > div, div[data-testid="msg-container"] .message-in > div {
-                    background-color: #111111 !important;
-                    color: #ffffff !important;
-                }
-                div.message-out > div, div[data-testid="msg-container"] .message-out > div {
-                    background-color: #003d32 !important;
-                    color: #ffffff !important;
-                }
-                #pane-side span[dir="auto"], #pane-side div[data-testid="cell-frame-title"], #side header span {
-                    color: #ffffff !important;
-                }
-                #pane-side div[data-testid="cell-frame-secondary"], #pane-side span[data-testid="status-time"], #side span[data-testid="status-time"] {
-                    color: #8696a0 !important;
-                }
-                div[contenteditable="true"], input[type="text"] {
-                    background-color: #0d0d0d !important;
-                    color: #ffffff !important;
-                }
-                ${wallpaperFix}
-            `;
+            return buildThemeCss({
+                bg: "#000000",
+                convBg: "#000000",
+                headerBg: "#000000",
+                hover: "#0e0e0e",
+                active: "#181818",
+                inputBg: "#0e0e0e",
+                incomingBg: "#141414",
+                incomingBgDeeper: "#0d0d0d",
+                outgoingBg: "#00473a",
+                outgoingBgDeeper: "#00382d",
+                primary: "#00a884",
+                text: "#ffffff",
+                secondary: "#8696a0",
+                headerIcon: "#aebac1",
+                border: "#161616",
+                iconRule: `button svg, span[data-icon] svg { color: #aebac1 !important; fill: currentColor !important; }`
+            });
 
         case "dracula":
-            return `
-                :root, html, body.dark, [data-theme="dark"], #app {
-                    --app-background: #282a36 !important;
-                    --background-default: #282a36 !important;
-                    --background-default-hover: #343746 !important;
-                    --background-default-active: #44475a !important;
-                    --conversation-panel-background: #1e1f29 !important;
-                    --panel-header-background: #21222c !important;
-                    --panel-header-icon: #bd93f9 !important;
-                    --search-input-background: #21222c !important;
-                    --incoming-background: #44475a !important;
-                    --incoming-background-deeper: #383a59 !important;
-                    --outgoing-background: #383a59 !important;
-                    --outgoing-background-deeper: #2d2f47 !important;
-                    --primary: #bd93f9 !important;
-                    --primary-strong: #ff79c6 !important;
-                    --primary-title: #f8f8f2 !important;
-                    --secondary: #6272a4 !important;
-                    --message-primary: #f8f8f2 !important;
-                    --message-secondary: #6272a4 !important;
-                    --compose-input-background: #21222c !important;
-                    --compose-input-border: #44475a !important;
-                    --border-default: #44475a !important;
-                    --border-list: #343746 !important;
-                    --border-strong: #6272a4 !important;
-                    --modal-background: #21222c !important;
-                    --dropdown-background: #282a36 !important;
-                }
-                #app > div > div > div:first-child {
-                    background-color: #21222c !important;
-                    border-right: 1px solid #44475a !important;
-                }
-                /* Uniform dark sidebar rows */
-                #side, #side header, #pane-side,
-                #pane-side > div,
-                #pane-side div[role="listitem"],
-                #pane-side div[role="listitem"] > div,
-                #pane-side div[role="row"],
-                #pane-side div[data-testid="cell-frame-container"],
-                #pane-side div[tabindex],
-                div[data-testid="chat-list-search"] {
-                    background-color: #282a36 !important;
-                }
-                #pane-side div[role="listitem"]:hover,
-                #pane-side div[role="listitem"]:hover > div,
-                #pane-side div[data-testid="cell-frame-container"]:hover {
-                    background-color: #343746 !important;
-                }
-                #pane-side div[role="listitem"][aria-selected="true"],
-                #pane-side div[role="listitem"][aria-selected="true"] > div,
-                #pane-side div[data-testid="cell-frame-container"][aria-selected="true"],
-                #pane-side div[aria-selected="true"] {
-                    background-color: #44475a !important;
-                }
-                /* Filter chips */
-                div[data-testid="chat-list-search"] button,
-                #side button[role="tab"],
-                #side div[role="tablist"] button {
-                    background-color: #21222c !important;
-                    color: #f8f8f2 !important;
-                    border: 1px solid #44475a !important;
-                }
-                div[data-testid="chat-list-search"] button[aria-selected="true"],
-                #side button[role="tab"][aria-selected="true"],
-                #side div[role="tablist"] button[aria-selected="true"] {
-                    background-color: #44475a !important;
-                    color: #bd93f9 !important;
-                    border-color: #bd93f9 !important;
-                }
-                #main, div[data-testid="conversation-panel-wrapper"] {
-                    background-color: #1e1f29 !important;
-                }
-                div.message-in > div, div[data-testid="msg-container"] .message-in > div {
-                    background-color: #44475a !important;
-                    color: #f8f8f2 !important;
-                }
-                div.message-out > div, div[data-testid="msg-container"] .message-out > div {
-                    background-color: #383a59 !important;
-                    color: #f8f8f2 !important;
-                }
-                #pane-side span[dir="auto"], #pane-side div[data-testid="cell-frame-title"], #side header span {
-                    color: #f8f8f2 !important;
-                }
-                #pane-side div[data-testid="cell-frame-secondary"], #pane-side span[data-testid="status-time"], #side span[data-testid="status-time"] {
-                    color: #6272a4 !important;
-                }
-                div[contenteditable="true"], input[type="text"] {
-                    background-color: #21222c !important;
-                    color: #f8f8f2 !important;
-                }
-                button svg, span[data-testid*="icon"] svg {
-                    color: #bd93f9 !important;
-                    fill: currentColor !important;
-                }
-                ${wallpaperFix}
-            `;
+            return buildThemeCss({
+                bg: "#282a36",
+                convBg: "#1e1f29",
+                headerBg: "#21222c",
+                hover: "#343746",
+                active: "#44475a",
+                inputBg: "#21222c",
+                incomingBg: "#44475a",
+                incomingBgDeeper: "#383a59",
+                outgoingBg: "#383a59",
+                outgoingBgDeeper: "#2d2f47",
+                primary: "#bd93f9",
+                text: "#f8f8f2",
+                secondary: "#6272a4",
+                headerIcon: "#bd93f9",
+                border: "#44475a",
+                iconRule: `button svg, span[data-icon] svg { color: #bd93f9 !important; fill: currentColor !important; }`
+            });
 
         case "catppuccin":
-            return `
-                :root, html, body.dark, [data-theme="dark"], #app {
-                    --app-background: #1e1e2e !important;
-                    --background-default: #1e1e2e !important;
-                    --background-default-hover: #252538 !important;
-                    --background-default-active: #313244 !important;
-                    --conversation-panel-background: #181825 !important;
-                    --panel-header-background: #181825 !important;
-                    --panel-header-icon: #7f849c !important;
-                    --search-input-background: #181825 !important;
-                    --incoming-background: #313244 !important;
-                    --incoming-background-deeper: #252538 !important;
-                    --outgoing-background: #2b473e !important;
-                    --outgoing-background-deeper: #223831 !important;
-                    --primary: #cba6f7 !important;
-                    --primary-strong: #89b4fa !important;
-                    --primary-title: #cdd6f4 !important;
-                    --secondary: #7f849c !important;
-                    --message-primary: #cdd6f4 !important;
-                    --message-secondary: #7f849c !important;
-                    --compose-input-background: #181825 !important;
-                    --compose-input-border: #313244 !important;
-                    --border-default: #313244 !important;
-                    --border-list: #313244 !important;
-                    --border-strong: #45475a !important;
-                    --modal-background: #181825 !important;
-                    --dropdown-background: #1e1e2e !important;
-                }
-                #app > div > div > div:first-child {
-                    background-color: #11111b !important;
-                    border-right: 1px solid #313244 !important;
-                }
-                /* Uniform dark sidebar rows */
-                #side, #side header, #pane-side,
-                #pane-side > div,
-                #pane-side div[role="listitem"],
-                #pane-side div[role="listitem"] > div,
-                #pane-side div[role="row"],
-                #pane-side div[data-testid="cell-frame-container"],
-                #pane-side div[tabindex],
-                div[data-testid="chat-list-search"] {
-                    background-color: #1e1e2e !important;
-                }
-                #pane-side div[role="listitem"]:hover,
-                #pane-side div[role="listitem"]:hover > div,
-                #pane-side div[data-testid="cell-frame-container"]:hover {
-                    background-color: #252538 !important;
-                }
-                #pane-side div[role="listitem"][aria-selected="true"],
-                #pane-side div[role="listitem"][aria-selected="true"] > div,
-                #pane-side div[data-testid="cell-frame-container"][aria-selected="true"],
-                #pane-side div[aria-selected="true"] {
-                    background-color: #313244 !important;
-                }
-                /* Filter chips */
-                div[data-testid="chat-list-search"] button,
-                #side button[role="tab"],
-                #side div[role="tablist"] button {
-                    background-color: #181825 !important;
-                    color: #cdd6f4 !important;
-                    border: 1px solid #313244 !important;
-                }
-                div[data-testid="chat-list-search"] button[aria-selected="true"],
-                #side button[role="tab"][aria-selected="true"],
-                #side div[role="tablist"] button[aria-selected="true"] {
-                    background-color: #313244 !important;
-                    color: #cba6f7 !important;
-                    border-color: #cba6f7 !important;
-                }
-                #main, div[data-testid="conversation-panel-wrapper"] {
-                    background-color: #181825 !important;
-                }
-                div.message-in > div, div[data-testid="msg-container"] .message-in > div {
-                    background-color: #313244 !important;
-                    color: #cdd6f4 !important;
-                }
-                div.message-out > div, div[data-testid="msg-container"] .message-out > div {
-                    background-color: #2b473e !important;
-                    color: #cdd6f4 !important;
-                }
-                #pane-side span[dir="auto"], #pane-side div[data-testid="cell-frame-title"], #side header span {
-                    color: #cdd6f4 !important;
-                }
-                #pane-side div[data-testid="cell-frame-secondary"], #pane-side span[data-testid="status-time"], #side span[data-testid="status-time"] {
-                    color: #7f849c !important;
-                }
-                div[contenteditable="true"], input[type="text"] {
-                    background-color: #181825 !important;
-                    color: #cdd6f4 !important;
-                }
-                button svg, span[data-testid*="icon"] svg {
-                    color: #cba6f7 !important;
-                    fill: currentColor !important;
-                }
-                ${wallpaperFix}
-            `;
+            return buildThemeCss({
+                bg: "#1e1e2e",
+                convBg: "#181825",
+                headerBg: "#181825",
+                hover: "#252538",
+                active: "#313244",
+                inputBg: "#181825",
+                incomingBg: "#313244",
+                incomingBgDeeper: "#252538",
+                outgoingBg: "#2b473e",
+                outgoingBgDeeper: "#223831",
+                primary: "#cba6f7",
+                text: "#cdd6f4",
+                secondary: "#7f849c",
+                headerIcon: "#cba6f7",
+                border: "#313244",
+                iconRule: `button svg, span[data-icon] svg { color: #cba6f7 !important; fill: currentColor !important; }`
+            });
 
         case "nord":
-            return `
-                :root, html, body.dark, [data-theme="dark"], #app {
-                    --app-background: #2e3440 !important;
-                    --background-default: #2e3440 !important;
-                    --background-default-hover: #3b4252 !important;
-                    --background-default-active: #434c5e !important;
-                    --conversation-panel-background: #242933 !important;
-                    --panel-header-background: #242933 !important;
-                    --panel-header-icon: #81a1c1 !important;
-                    --search-input-background: #242933 !important;
-                    --incoming-background: #3b4252 !important;
-                    --incoming-background-deeper: #2e3440 !important;
-                    --outgoing-background: #28443e !important;
-                    --outgoing-background-deeper: #203632 !important;
-                    --primary: #88c0d0 !important;
-                    --primary-strong: #81a1c1 !important;
-                    --primary-title: #eceff4 !important;
-                    --secondary: #81a1c1 !important;
-                    --message-primary: #eceff4 !important;
-                    --message-secondary: #81a1c1 !important;
-                    --compose-input-background: #242933 !important;
-                    --compose-input-border: #3b4252 !important;
-                    --border-default: #3b4252 !important;
-                    --border-list: #3b4252 !important;
-                    --border-strong: #4c566a !important;
-                    --modal-background: #242933 !important;
-                    --dropdown-background: #2e3440 !important;
-                }
-                #app > div > div > div:first-child {
-                    background-color: #242933 !important;
-                    border-right: 1px solid #3b4252 !important;
-                }
-                /* Uniform dark sidebar rows */
-                #side, #side header, #pane-side,
-                #pane-side > div,
-                #pane-side div[role="listitem"],
-                #pane-side div[role="listitem"] > div,
-                #pane-side div[role="row"],
-                #pane-side div[data-testid="cell-frame-container"],
-                #pane-side div[tabindex],
-                div[data-testid="chat-list-search"] {
-                    background-color: #2e3440 !important;
-                }
-                #pane-side div[role="listitem"]:hover,
-                #pane-side div[role="listitem"]:hover > div,
-                #pane-side div[data-testid="cell-frame-container"]:hover {
-                    background-color: #3b4252 !important;
-                }
-                #pane-side div[role="listitem"][aria-selected="true"],
-                #pane-side div[role="listitem"][aria-selected="true"] > div,
-                #pane-side div[data-testid="cell-frame-container"][aria-selected="true"],
-                #pane-side div[aria-selected="true"] {
-                    background-color: #434c5e !important;
-                }
-                /* Filter chips */
-                div[data-testid="chat-list-search"] button,
-                #side button[role="tab"],
-                #side div[role="tablist"] button {
-                    background-color: #242933 !important;
-                    color: #eceff4 !important;
-                    border: 1px solid #3b4252 !important;
-                }
-                div[data-testid="chat-list-search"] button[aria-selected="true"],
-                #side button[role="tab"][aria-selected="true"],
-                #side div[role="tablist"] button[aria-selected="true"] {
-                    background-color: #3b4252 !important;
-                    color: #88c0d0 !important;
-                    border-color: #88c0d0 !important;
-                }
-                #main, div[data-testid="conversation-panel-wrapper"] {
-                    background-color: #242933 !important;
-                }
-                div.message-in > div, div[data-testid="msg-container"] .message-in > div {
-                    background-color: #3b4252 !important;
-                    color: #eceff4 !important;
-                }
-                div.message-out > div, div[data-testid="msg-container"] .message-out > div {
-                    background-color: #28443e !important;
-                    color: #eceff4 !important;
-                }
-                #pane-side span[dir="auto"], #pane-side div[data-testid="cell-frame-title"], #side header span {
-                    color: #eceff4 !important;
-                }
-                #pane-side div[data-testid="cell-frame-secondary"], #pane-side span[data-testid="status-time"], #side span[data-testid="status-time"] {
-                    color: #81a1c1 !important;
-                }
-                div[contenteditable="true"], input[type="text"] {
-                    background-color: #242933 !important;
-                    color: #eceff4 !important;
-                }
-                button svg, span[data-testid*="icon"] svg {
-                    color: #88c0d0 !important;
-                    fill: currentColor !important;
-                }
-                ${wallpaperFix}
-            `;
+            return buildThemeCss({
+                bg: "#2e3440",
+                convBg: "#242933",
+                headerBg: "#242933",
+                hover: "#3b4252",
+                active: "#434c5e",
+                inputBg: "#242933",
+                incomingBg: "#3b4252",
+                incomingBgDeeper: "#2e3440",
+                outgoingBg: "#28443e",
+                outgoingBgDeeper: "#203632",
+                primary: "#88c0d0",
+                text: "#eceff4",
+                secondary: "#81a1c1",
+                headerIcon: "#88c0d0",
+                border: "#3b4252",
+                iconRule: `button svg, span[data-icon] svg { color: #88c0d0 !important; fill: currentColor !important; }`
+            });
 
         default:
             return "";
@@ -890,7 +850,7 @@ function createCovenantDrawer(): HTMLElement | null {
                 </div>
 
                 <div style="font-size: 12px; color: var(--secondary, #667781);">
-                    WhatsApp Desktop Linux - Covenant Edition v1.4.6
+                    WhatsApp Desktop Linux - Covenant Edition v1.4.7
                 </div>
 
                 <div style="background-color: var(--background-default-hover, rgba(134,150,160,0.08)); border-radius: 6px; padding: 10px 12px; font-size: 12px; display: flex; flex-direction: column; gap: 6px;">

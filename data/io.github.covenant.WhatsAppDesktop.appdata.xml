@@ -38,6 +38,16 @@
   </screenshots>
 
   <releases>
+    <release version="1.4.7" date="2026-11-08">
+      <description>
+        <p>Full Window Theming Release:</p>
+        <ul>
+          <li>Applied theme colors to 100% of the WhatsApp interface: Left Navigation Rail (Dock), Main Conversation Header, Sidebar Header, Search &amp; Filter Pills, Message Bubbles, Cards, and Footer Composer</li>
+          <li>Preserved official WhatsApp doodle wallpaper in full clarity behind all messages</li>
+          <li>Unified all panels, dropdowns, and borders to eliminate any remaining white container artifacts</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.6" date="2026-11-08">
       <description>
         <p>WhatsApp Doodle Wallpaper Preservation and Theme Unification Release:</p>
