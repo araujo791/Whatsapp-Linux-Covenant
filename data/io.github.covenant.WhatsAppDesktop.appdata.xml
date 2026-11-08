@@ -38,6 +38,17 @@
   </screenshots>
 
   <releases>
+    <release version="1.4.6" date="2026-11-08">
+      <description>
+        <p>WhatsApp Doodle Wallpaper Preservation and Theme Unification Release:</p>
+        <ul>
+          <li>Preserved the official WhatsApp doodle background drawings across all themes (OLED, Dracula, Catppuccin, Nord)</li>
+          <li>Completely removed sidebar resizing to let WhatsApp manage its contact list natively with zero layout deformation</li>
+          <li>Unified theme colors and dark class syncing to eliminate any zebra striping or white container artifacts</li>
+          <li>Enhanced in-app Covenant drawer with transparent gear dock icon and instant real-time theme preview</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.5" date="2026-11-08">
       <description>
         <p>Covenant In-App Experience and Layout Polish Release:</p>

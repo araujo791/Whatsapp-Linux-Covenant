@@ -386,34 +386,6 @@
 
     <!-- TAB: LAYOUT -->
     <div class="tab-panel active" id="tab-layout">
-      <div class="section-title">Ajuste de Largura da Barra de Conversas</div>
-      
-      <div class="card">
-        <div class="option-row">
-          <div class="option-info">
-            <span class="option-label">Redimensionamento Livre (Divisor Arrastável)</span>
-            <span class="option-desc">Permite puxar a borda divisória entre a lista de chats e a conversa arrastando com o mouse em tempo real.</span>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="sidebar_resizable">
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="option-row" style="margin-top: 14px;">
-          <div class="option-info">
-            <span class="option-label">Largura Personalizada da Barra</span>
-            <span class="option-desc">Defina manualmente o tamanho exato da coluna lateral de conversas.</span>
-          </div>
-          <button class="btn" id="btn-reset-sidebar">Padrão Original</button>
-        </div>
-
-        <div class="range-container">
-          <input type="range" id="sidebar_width" min="260" max="750" value="400" step="10">
-          <span class="range-val" id="sidebar_width_val">400px</span>
-        </div>
-      </div>
-
       <div class="section-title">Janela & Visualização</div>
       <div class="card">
         <div class="option-row">
@@ -614,8 +586,6 @@
 
     // State
     let currentSettings = {
-      sidebar_resizable: false,
-      sidebar_width: 400,
       always_on_top: false,
       privacy_enabled: false,
       privacy_blur_photos: false,
@@ -652,25 +622,9 @@
       });
     });
 
-    // Sidebar range
-    const widthRange = document.getElementById('sidebar_width');
-    const widthVal = document.getElementById('sidebar_width_val');
-    widthRange.addEventListener('input', (e) => {
-      widthVal.innerText = e.target.value + 'px';
-      currentSettings.sidebar_width = parseInt(e.target.value, 10);
-      autoSave();
-    });
-
-    document.getElementById('btn-reset-sidebar').addEventListener('click', () => {
-      widthRange.value = 400;
-      widthVal.innerText = '400px';
-      currentSettings.sidebar_width = 400;
-      autoSave();
-    });
-
     // Checkboxes
     const booleanFields = [
-      'sidebar_resizable', 'always_on_top',
+      'always_on_top',
       'privacy_enabled', 'privacy_blur_photos',
       'privacy_blur_names', 'privacy_blur_messages',
       'privacy_blur_on_window_blur'
@@ -703,11 +657,6 @@
         if (el) el.checked = !!currentSettings[f];
       });
 
-      if (currentSettings.sidebar_width) {
-        widthRange.value = currentSettings.sidebar_width;
-        widthVal.innerText = currentSettings.sidebar_width + 'px';
-      }
-
       // Theme UI
       document.querySelectorAll('.theme-card').forEach(c => {
         c.classList.remove('active');
@@ -733,8 +682,6 @@
 
     document.getElementById('btn-reset-all').addEventListener('click', () => {
       currentSettings = {
-        sidebar_resizable: false,
-        sidebar_width: 400,
         always_on_top: false,
         privacy_enabled: false,
         privacy_blur_photos: false,

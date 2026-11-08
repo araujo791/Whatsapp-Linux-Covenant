@@ -13,7 +13,6 @@ const CHROME_VERSION = process.versions.chrome || "130.0.6723.116";
 const USER_AGENT = `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROME_VERSION} Safari/537.36`;
 
 const DEFAULT_COVENANT_SETTINGS = {
-    sidebar_width: null,
     always_on_top: false,
     privacy_enabled: false,
     privacy_blur_photos: false,
@@ -60,12 +59,8 @@ export default class WhatsApp {
         this.makeLinksOpenInBrowser();
         this.registerListeners();
 
-        // Apply covenant settings if previously configured and clear old deforming sidebar widths
+        // Apply covenant settings if previously configured
         const current = this.getCovenantSettings();
-        if (current.sidebar_width && current.sidebar_width <= 360) {
-            current.sidebar_width = null;
-            this.covenantSettings.set("config", current);
-        }
         if (current.always_on_top) {
             this.window.setAlwaysOnTop(true);
         }
