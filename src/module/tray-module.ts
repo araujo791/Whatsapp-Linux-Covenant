@@ -46,20 +46,35 @@ export default class TrayModule extends Module {
 
         const menu = Menu.buildFromTemplate([
             {
-                label: this.window.isVisible() ? "Minimize to tray" : "Show WhatsApp",
+                label: this.window.isVisible() ? "Minimizar para a bandeja" : "Mostrar WhatsApp",
                 click: () => this.onClickFirstItem()
             },
+            { type: "separator" },
             {
-                label: "Quit WhatsApp",
+                label: "⚡ Configurações Covenant...",
+                click: () => this.whatsApp.openSettings()
+            },
+            {
+                label: "👥 Abrir Segunda Conta",
+                click: () => this.whatsApp.openSecondAccount()
+            },
+            {
+                label: "🛡️ Alternar Modo Privacidade",
+                accelerator: "CmdOrCtrl+Shift+P",
+                click: () => this.whatsApp.togglePrivacy()
+            },
+            { type: "separator" },
+            {
+                label: "Sair do WhatsApp",
                 click: () => this.whatsApp.quit()
             }
         ]);
 
-        let tooltip = "WhatsApp Desktop";
+        let tooltip = "WhatsApp Desktop (Covenant)";
 
         if (unread != 0) {
             menu.insert(0, new MenuItem({
-                label: unread + " unread chats",
+                label: unread + (unread === 1 ? " conversa não lida" : " conversas não lidas"),
                 enabled: false
             }));
 

@@ -38,6 +38,19 @@
   </screenshots>
 
   <releases>
+    <release version="1.4.0" date="2026-11-08">
+      <description>
+        <p>Exclusive Covenant Features (disabled by default, configurable in Settings):</p>
+        <ul>
+          <li>Interactive Draggable Sidebar Divider: freely resize the chat list column width</li>
+          <li>Covenant Anti-Spy Privacy Suite: blur profile photos, names, message previews with hover-to-reveal, and auto-blur on window focus loss (Ctrl+Shift+P)</li>
+          <li>Exclusive Premium Dark Themes: OLED True Black (#000000), Dracula, Catppuccin Mocha, and Nord</li>
+          <li>Isolated Multi-Account Session: run a second simultaneous WhatsApp account (Personal/Work) without conflicts</li>
+          <li>Exclusive Covenant Settings Panel featuring the official Covenant brand, quick shortcuts, and tray quick-access</li>
+          <li>Always on Top window toggle shortcut (Ctrl+Shift+M)</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.3.1" date="2026-11-08">
       <description>
         <p>Fixes and improvements:</p>

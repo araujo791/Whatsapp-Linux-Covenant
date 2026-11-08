@@ -1,0 +1,24 @@
+/* Covenant Nord Theme */
+body, body.dark, [data-theme="dark"], #app {
+  --app-background: #2e3440 !important;
+  --background-default: #2e3440 !important;
+  --background-default-hover: #3b4252 !important;
+  --background-default-active: #434c5e !important;
+  --conversation-panel-background: #242933 !important;
+  --incoming-background: #3b4252 !important;
+  --incoming-background-rgb: 59, 66, 82 !important;
+  --outgoing-background: #2b4f4c !important;
+  --outgoing-background-rgb: 43, 79, 76 !important;
+  --panel-header-background: #1e222a !important;
+  --search-input-background: #242933 !important;
+  --border-default: #3b4252 !important;
+  --border-strong: #4c566a !important;
+  --primary: #88c0d0 !important;
+  --primary-strong: #a3be8c !important;
+  --unread-marker-background: #bf616a !important;
+}
+
+body.dark header {
+  background-color: #1e222a !important;
+  border-bottom: 1px solid #3b4252 !important;
+}

@@ -1,0 +1,27 @@
+/* Covenant Dracula Theme */
+body, body.dark, [data-theme="dark"], #app {
+  --app-background: #282a36 !important;
+  --background-default: #282a36 !important;
+  --background-default-hover: #343746 !important;
+  --background-default-active: #44475a !important;
+  --conversation-panel-background: #21222c !important;
+  --incoming-background: #44475a !important;
+  --incoming-background-rgb: 68, 71, 90 !important;
+  --outgoing-background: #285340 !important;
+  --outgoing-background-rgb: 40, 83, 64 !important;
+  --panel-header-background: #1e1f29 !important;
+  --search-input-background: #21222c !important;
+  --border-default: #44475a !important;
+  --border-strong: #6272a4 !important;
+  --border-list: #343746 !important;
+  --dropdown-background: #282a36 !important;
+  --modal-background: #21222c !important;
+  --primary: #bd93f9 !important;
+  --primary-strong: #50fa7b !important;
+  --unread-marker-background: #ff79c6 !important;
+}
+
+body.dark header {
+  background-color: #1e1f29 !important;
+  border-bottom: 1px solid #44475a !important;
+}
