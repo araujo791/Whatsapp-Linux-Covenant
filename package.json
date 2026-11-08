@@ -4,7 +4,7 @@
   "description": "WhatsApp Desktop for Linux - Covenant Edition",
   "main": "dist/index.js",
   "scripts": {
-    "dist": "tsc && node -e \"const fs=require('fs'); fs.mkdirSync('dist/view', {recursive:true}); fs.cpSync('src/view', 'dist/view', {recursive:true}); fs.mkdirSync('dist/themes', {recursive:true}); fs.cpSync('src/themes', 'dist/themes', {recursive:true});\"",
+    "dist": "tsc",
     "watch": "tsc -w",
     "lint": "eslint -c .eslintrc --ext .ts ./src",
     "start": "npm run dist && electron .",
