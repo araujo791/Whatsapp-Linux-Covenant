@@ -179,17 +179,17 @@ function installDrawerThemeStyles() {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3) !important;
 
-            /* Dark theme by default (matches system dark & WhatsApp dark) */
-            --cov-bg: #111b21;
-            --cov-header-bg: #202c33;
-            --cov-card-bg: #202c33;
-            --cov-card-hover: #222e35;
-            --cov-title: #e9edef;
-            --cov-subtitle: #8696a0;
-            --cov-border: #222e35;
+            /* Dark theme by default (matches modern WhatsApp Web neutral dark #161717) */
+            --cov-bg: #161717;
+            --cov-header-bg: #161717;
+            --cov-card-bg: #202222;
+            --cov-card-hover: #262828;
+            --cov-title: #fafafa;
+            --cov-subtitle: #9da0a2;
+            --cov-border: #2e2f2f;
             --cov-icon: #aebac1;
             --cov-primary: #00a884;
-            --cov-kbd-bg: rgba(134, 150, 160, 0.2);
+            --cov-kbd-bg: #2e2f2f;
             --cov-btn-bg: #00a884;
             --cov-btn-text: #ffffff;
             --cov-reset-border: rgba(248, 81, 73, 0.4);
@@ -221,16 +221,16 @@ function installDrawerThemeStyles() {
         /* Dark mode support */
         body.dark #covenant-drawer,
         #covenant-drawer.dark {
-            --cov-bg: #111b21;
-            --cov-header-bg: #202c33;
-            --cov-card-bg: #202c33;
-            --cov-card-hover: #222e35;
-            --cov-title: #e9edef;
-            --cov-subtitle: #8696a0;
-            --cov-border: #222e35;
+            --cov-bg: #161717;
+            --cov-header-bg: #161717;
+            --cov-card-bg: #202222;
+            --cov-card-hover: #262828;
+            --cov-title: #fafafa;
+            --cov-subtitle: #9da0a2;
+            --cov-border: #2e2f2f;
             --cov-icon: #aebac1;
             --cov-primary: #00a884;
-            --cov-kbd-bg: rgba(134, 150, 160, 0.2);
+            --cov-kbd-bg: #2e2f2f;
             --cov-btn-bg: #00a884;
             --cov-btn-text: #ffffff;
             --cov-reset-border: rgba(248, 81, 73, 0.4);
@@ -260,6 +260,7 @@ function installDrawerThemeStyles() {
         }
         .cov-card {
             background-color: var(--cov-card-bg) !important;
+            border: 1px solid var(--cov-border) !important;
             border-radius: 8px;
             padding: 12px 14px;
         }
@@ -646,7 +647,7 @@ function createCovenantDrawer(): HTMLElement | null {
                 </div>
 
                 <div style="font-size: 12px; color: var(--cov-subtitle);">
-                    WhatsApp Desktop Linux - Covenant Edition v1.4.9
+                    WhatsApp Desktop Linux - Covenant Edition v1.5.0
                 </div>
 
                 <div class="cov-card" style="font-size: 12px; display: flex; flex-direction: column; gap: 6px;">
@@ -800,7 +801,7 @@ function showToast(message: string) {
             position: fixed;
             bottom: 24px;
             right: 24px;
-            background: #111b21;
+            background: #161717;
             color: #00a884;
             padding: 12px 20px;
             border-radius: 8px;

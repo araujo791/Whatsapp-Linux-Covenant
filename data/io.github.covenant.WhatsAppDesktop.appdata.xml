@@ -38,6 +38,16 @@
   </screenshots>
 
   <releases>
+    <release version="1.5.0" date="2026-11-08">
+      <description>
+        <p>Exact WhatsApp Modern Dark Mode Theme Color Match:</p>
+        <ul>
+          <li>Updated drawer background and header to exact WhatsApp Web dark theme charcoal (#161717)</li>
+          <li>Updated cards, borders, and controls to match WhatsApp native dark palette (#202222 card background, #2e2f2f border)</li>
+          <li>Refined text contrast (#fafafa title, #9da0a2 subtitle) matching WhatsApp native settings drawer</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.9" date="2026-11-08">
       <description>
         <p>Dynamic System and WhatsApp Dark Mode Theme Integration:</p>
