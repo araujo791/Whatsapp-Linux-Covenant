@@ -69,7 +69,7 @@ function getThemeCss(theme: string): string {
                     --system-message-background: #101010 !important;
                 }
                 #app, #app > div, #app > div > div,
-                #side, #side header, #side [data-testid="chat-list"], #pane-side,
+                #side, #side header, #pane-side,
                 div[role="navigation"],
                 #main, #main header, #main footer,
                 div[data-testid="conversation-panel-wrapper"],
@@ -138,7 +138,7 @@ function getThemeCss(theme: string): string {
                     --dropdown-background: #282a36 !important;
                 }
                 #app, #app > div, #app > div > div,
-                #side, #side header, #side [data-testid="chat-list"], #pane-side,
+                #side, #side header, #pane-side,
                 div[role="navigation"],
                 #main, #main header, #main footer,
                 div[data-testid="conversation-panel-wrapper"],
@@ -208,7 +208,7 @@ function getThemeCss(theme: string): string {
                     --dropdown-background: #1e1e2e !important;
                 }
                 #app, #app > div, #app > div > div,
-                #side, #side header, #side [data-testid="chat-list"], #pane-side,
+                #side, #side header, #pane-side,
                 div[role="navigation"],
                 #main, #main header, #main footer,
                 div[data-testid="conversation-panel-wrapper"],
@@ -278,7 +278,7 @@ function getThemeCss(theme: string): string {
                     --dropdown-background: #2e3440 !important;
                 }
                 #app, #app > div, #app > div > div,
-                #side, #side header, #side [data-testid="chat-list"], #pane-side,
+                #side, #side header, #pane-side,
                 div[role="navigation"],
                 #main, #main header, #main footer,
                 div[data-testid="conversation-panel-wrapper"],
@@ -427,25 +427,32 @@ function applyPrivacy(settings: any) {
     style.textContent = css;
 }
 
-// 3. Natural Sidebar Resizer (hover & drag directly on the border)
+// 3. Clean Natural Sidebar Resizer (No layout deformation)
 let isDraggingSidebar = false;
 let startX = 0;
 let startWidth = 0;
 
 function applySidebarWidth(width?: number | null) {
     const style = getOrCreateStyle("covenant-sidebar-style");
-    if (!width || width === 400) {
+    // If not set or null, leave 100% native WhatsApp layout untouched
+    if (!width) {
         style.textContent = "";
         return;
     }
     style.textContent = `
-        #side, div[data-testid="chat-list"] {
+        #side {
             width: ${width}px !important;
-            min-width: 240px !important;
+            min-width: 260px !important;
             max-width: 850px !important;
             flex: 0 0 ${width}px !important;
+            height: 100% !important;
+        }
+        #side > div, #pane-side {
+            width: 100% !important;
+            height: 100% !important;
         }
     `;
+    window.dispatchEvent(new Event("resize"));
 }
 
 function setupDraggableSplitter() {
@@ -456,7 +463,7 @@ function setupDraggableSplitter() {
 
     const splitter = document.createElement("div");
     splitter.id = "covenant-splitter";
-    splitter.title = "Arrastar para ajustar largura da barra";
+    splitter.title = "Arrastar para ajustar largura (Duplo clique para restaurar)";
     splitter.style.cssText = `
         position: absolute;
         top: 0;
@@ -466,25 +473,33 @@ function setupDraggableSplitter() {
         cursor: col-resize;
         z-index: 9999;
         background: transparent;
-        transition: background 0.15s ease;
+        transition: border-right 0.15s ease;
     `;
 
     splitter.addEventListener("mouseenter", () => {
-        splitter!.style.background = "rgba(0, 168, 132, 0.6)";
+        splitter!.style.borderRight = "3px solid #00a884";
     });
     splitter.addEventListener("mouseleave", () => {
-        if (!isDraggingSidebar) splitter!.style.background = "transparent";
+        if (!isDraggingSidebar) splitter!.style.borderRight = "none";
     });
 
     splitter.addEventListener("mousedown", (e) => {
         isDraggingSidebar = true;
         startX = e.clientX;
         startWidth = side.getBoundingClientRect().width;
-        splitter!.style.background = "#00a884";
+        splitter!.style.borderRight = "3px solid #00a884";
         document.body.style.cursor = "col-resize";
         document.body.style.userSelect = "none";
         e.preventDefault();
         e.stopPropagation();
+    });
+
+    // Double click resets to native default width
+    splitter.addEventListener("dblclick", () => {
+        currentSettings.sidebar_width = null;
+        applySidebarWidth(null);
+        ipcRenderer.send("save-covenant-settings", currentSettings);
+        showToast("Largura da barra restaurada para o padrão nativo");
     });
 
     if (getComputedStyle(side).position === "static") {
@@ -510,96 +525,65 @@ window.addEventListener("mouseup", () => {
     document.body.style.cursor = "";
     document.body.style.userSelect = "";
     const splitter = document.getElementById("covenant-splitter");
-    if (splitter) splitter.style.background = "transparent";
+    if (splitter) splitter.style.borderRight = "none";
     ipcRenderer.send("save-covenant-settings", currentSettings);
 });
 
-// 4. In-Dock Covenant Gear Button
-function injectCovenantDockButton() {
-    if (document.getElementById("covenant-dock-btn")) return;
-
-    // Look for native WhatsApp settings button or gear icon
+// 4. In-Dock Covenant Gear Button (Directly at the Blue Arrow)
+function findSettingsGearTarget(): { parent: HTMLElement; referenceNode: HTMLElement | null } | null {
+    // Strategy 1: Look for WhatsApp settings button by label in left dock
     const settingsBtn = document.querySelector<HTMLElement>(
-        'button[aria-label*="Configuraç"], button[title*="Configuraç"], ' +
-        'button[aria-label*="Setting"], button[title*="Setting"], ' +
-        'div[aria-label*="Configuraç"], div[title*="Configuraç"], ' +
-        'span[data-icon="settings"], span[data-icon="settings-outline"]'
+        '#app > div > div > div:first-child button[aria-label*="Configuraç"], ' +
+        '#app > div > div > div:first-child button[title*="Configuraç"], ' +
+        '#app > div > div > div:first-child div[aria-label*="Configuraç"], ' +
+        '#app > div > div > div:first-child div[title*="Configuraç"], ' +
+        '#app > div > div > div:first-child button[aria-label*="Setting"], ' +
+        '#app > div > div > div:first-child button[title*="Setting"], ' +
+        '#app > div > div > div:first-child span[data-icon="settings"], ' +
+        '#app > div > div > div:first-child span[data-icon="settings-outline"]'
     );
-
-    let targetParent: HTMLElement | null = null;
-    let referenceNode: HTMLElement | null = null;
 
     if (settingsBtn) {
         const btn = (settingsBtn.closest("button, div[role='button']") as HTMLElement) || settingsBtn;
-        targetParent = btn.parentElement;
-        referenceNode = btn;
-    } else {
-        const avatar = document.querySelector<HTMLElement>(
-            '#app > div > div > div:first-child img[src*="user"], ' +
-            '#app > div > div > div:first-child img[src*="profile"]'
-        );
-        if (avatar) {
-            const btn = (avatar.closest("button, div[role='button']") as HTMLElement) || avatar;
-            targetParent = btn.parentElement;
-            referenceNode = btn;
+        if (btn.parentElement) {
+            return { parent: btn.parentElement, referenceNode: btn };
         }
     }
 
-    if (!targetParent) {
-        const leftRail = document.querySelector<HTMLElement>("#app > div > div > div:first-child");
-        if (leftRail) {
-            targetParent = leftRail;
-            referenceNode = null;
+    // Strategy 2: Look for avatar at bottom of rail and insert above it
+    const avatar = document.querySelector<HTMLElement>(
+        '#app > div > div > div:first-child img[src*="user"], ' +
+        '#app > div > div > div:first-child img[src*="profile"]'
+    );
+    if (avatar) {
+        const btn = (avatar.closest("button, div[role='button']") as HTMLElement) || avatar;
+        if (btn.parentElement) {
+            return { parent: btn.parentElement, referenceNode: btn };
         }
     }
 
-    // Floating fallback button if rail not ready yet
-    if (!targetParent) {
-        if (!document.getElementById("covenant-floating-btn")) {
-            const floatBtn = document.createElement("button");
-            floatBtn.id = "covenant-floating-btn";
-            floatBtn.title = "Configurações Covenant (Ctrl+,)";
-            floatBtn.style.cssText = `
-                position: fixed;
-                bottom: 14px;
-                left: 14px;
-                width: 38px;
-                height: 38px;
-                border-radius: 50%;
-                background: #11141c;
-                border: 1px solid #232d40;
-                box-shadow: 0 4px 14px rgba(0,0,0,0.6);
-                cursor: pointer;
-                z-index: 99999;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: transform 0.2s, background 0.2s;
-            `;
-            floatBtn.innerHTML = `<img src="data:image/png;base64,${COVENANT_SYMBOL_B64}" style="width: 22px; height: 22px; pointer-events: none;" alt="Covenant">`;
-            floatBtn.addEventListener("mouseenter", () => { floatBtn.style.transform = "scale(1.1)"; });
-            floatBtn.addEventListener("mouseleave", () => { floatBtn.style.transform = "scale(1)"; });
-            floatBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleCovenantModal();
-            });
-            document.body.appendChild(floatBtn);
-        }
-        return;
+    // Strategy 3: Left rail container
+    const leftRail = document.querySelector<HTMLElement>("#app > div > div > div:first-child");
+    if (leftRail) {
+        return { parent: leftRail, referenceNode: null };
     }
 
-    // Remove floating button once dock button can be inserted
-    const existingFloat = document.getElementById("covenant-floating-btn");
-    if (existingFloat) existingFloat.remove();
+    return null;
+}
+
+function injectCovenantDockButton() {
+    if (document.getElementById("covenant-dock-btn")) return;
+
+    const target = findSettingsGearTarget();
+    if (!target) return;
 
     const btn = document.createElement("button");
     btn.id = "covenant-dock-btn";
     btn.title = "Configurações Covenant (Ctrl+,)";
     btn.setAttribute("aria-label", "Configurações Covenant");
     btn.style.cssText = `
-        width: 40px;
-        height: 40px;
+        width: 42px;
+        height: 42px;
         margin: 4px auto;
         border-radius: 50%;
         border: none;
@@ -633,14 +617,14 @@ function injectCovenantDockButton() {
         toggleCovenantModal();
     });
 
-    if (referenceNode && referenceNode.parentElement === targetParent) {
-        targetParent.insertBefore(btn, referenceNode);
+    if (target.referenceNode && target.referenceNode.parentElement === target.parent) {
+        target.parent.insertBefore(btn, target.referenceNode);
     } else {
-        targetParent.appendChild(btn);
+        target.parent.appendChild(btn);
     }
 }
 
-// 5. In-Page Covenant Settings Modal
+// 5. In-Page Covenant Settings Modal (No extra windows, seamless in-app dialog)
 let isModalOpen = false;
 
 function createCovenantModal() {
@@ -657,7 +641,7 @@ function createCovenantModal() {
         background: rgba(0, 0, 0, 0.72);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
-        z-index: 9999999;
+        z-index: 99999999;
         display: none;
         align-items: center;
         justify-content: center;
@@ -830,7 +814,7 @@ function createCovenantModal() {
                 <div id="tab-about" class="cov-tab-content" style="display: none; text-align: center;">
                     <img src="data:image/png;base64,${COVENANT_LOGO_B64}" style="max-width: 220px; margin: 8px auto 14px auto; display: block;" alt="Covenant">
                     <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">WhatsApp Desktop Linux - Covenant Edition</div>
-                    <div style="font-size: 12px; color: #8b949e; margin-bottom: 18px;">Versão 1.4.2 (Electron 33+ Modern Suite)</div>
+                    <div style="font-size: 12px; color: #8b949e; margin-bottom: 18px;">Versão 1.4.3 (Electron 33+ Modern Suite)</div>
 
                     <div style="background: #141924; border: 1px solid #20293b; border-radius: 10px; padding: 14px; max-width: 460px; margin: 0 auto 20px auto; text-align: left; font-size: 13px;">
                         <div style="font-weight: 600; margin-bottom: 8px; color: #00a884;">⌨️ Atalhos Rápidos de Teclado:</div>
@@ -1087,11 +1071,17 @@ window.addEventListener("keydown", (e) => {
     }
 });
 
-// Periodic setup
+// Periodic setup & DOM observation
 setInterval(() => {
     injectCovenantDockButton();
     setupDraggableSplitter();
-}, 1200);
+}, 1000);
+
+const observer = new MutationObserver(() => {
+    injectCovenantDockButton();
+    setupDraggableSplitter();
+});
+observer.observe(document.documentElement, { childList: true, subtree: true });
 
 async function initCovenant() {
     try {

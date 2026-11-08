@@ -44,24 +44,11 @@ export default class TrayModule extends Module {
     private updateMenu(unread: number = getUnreadMessages(this.window.title)) {
         if (!this.tray) return;
 
+        // Clean tray menu without extra settings options, as requested by user
         const menu = Menu.buildFromTemplate([
             {
                 label: this.window.isVisible() ? "Minimizar para a bandeja" : "Mostrar WhatsApp",
                 click: () => this.onClickFirstItem()
-            },
-            { type: "separator" },
-            {
-                label: "⚡ Configurações Covenant...",
-                click: () => this.whatsApp.openSettings()
-            },
-            {
-                label: "👥 Abrir Segunda Conta",
-                click: () => this.whatsApp.openSecondAccount()
-            },
-            {
-                label: "🛡️ Alternar Modo Privacidade",
-                accelerator: "CmdOrCtrl+Shift+P",
-                click: () => this.whatsApp.togglePrivacy()
             },
             { type: "separator" },
             {

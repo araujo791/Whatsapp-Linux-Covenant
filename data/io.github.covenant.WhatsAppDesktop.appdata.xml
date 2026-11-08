@@ -38,6 +38,17 @@
   </screenshots>
 
   <releases>
+    <release version="1.4.3" date="2026-11-08">
+      <description>
+        <p>Fixes and requested UX adjustments:</p>
+        <ul>
+          <li>Fixed layout deformation: reset any forced sidebar widths to guarantee 100% native layout fidelity</li>
+          <li>Injected Covenant button directly into the dock above the native settings gear</li>
+          <li>Removed all options from the tray menu for a minimal and clean tray</li>
+          <li>In-page modal options with zero external windows</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.4.2" date="2026-11-08">
       <description>
         <p>Fixes and stability improvements:</p>

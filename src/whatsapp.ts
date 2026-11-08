@@ -60,8 +60,12 @@ export default class WhatsApp {
         this.makeLinksOpenInBrowser();
         this.registerListeners();
 
-        // Apply covenant settings if previously configured
+        // Apply covenant settings if previously configured and clear old deforming sidebar widths
         const current = this.getCovenantSettings();
+        if (current.sidebar_width) {
+            current.sidebar_width = null;
+            this.covenantSettings.set("config", current);
+        }
         if (current.always_on_top) {
             this.window.setAlwaysOnTop(true);
         }
