@@ -17,8 +17,22 @@ export default class TrayModule extends Module {
     }
 
     public override onLoad() {
-        this.icon = findIcon("io.github.covenant.WhatsAppDesktop.png");
-        this.iconUnread = findIcon("io.github.covenant.WhatsAppDesktop-unread.png");
+        this.icon = findIcon("io.github.covenant.WhatsAppDesktop.png", 32);
+        this.iconUnread = findIcon("io.github.covenant.WhatsAppDesktop-unread.png", 32);
+
+        // Fallback: If unread icon fails to load, reuse the base icon to never display a blank space
+        if (this.iconUnread.isEmpty() && !this.icon.isEmpty()) {
+            this.iconUnread = this.icon;
+        }
+
+        // Downscale to 32x32 if larger, ensuring sharp rendering on Linux dark/light panels
+        if (!this.icon.isEmpty() && this.icon.getSize().width > 32) {
+            this.icon = this.icon.resize({ width: 32, height: 32 });
+        }
+        if (!this.iconUnread.isEmpty() && this.iconUnread.getSize().width > 32) {
+            this.iconUnread = this.iconUnread.resize({ width: 32, height: 32 });
+        }
+
         this.tray = new Tray(this.icon);
 
         this.tray.on("click", () => this.onClickFirstItem());
@@ -86,8 +100,11 @@ export default class TrayModule extends Module {
             let unread = getUnreadMessages(title);
 
             this.updateMenu(unread);
-            if (this.icon && this.iconUnread) {
-                this.tray.setImage(unread == 0 ? this.icon : this.iconUnread);
+            if (this.icon) {
+                const targetIcon = (unread === 0 || !this.iconUnread || this.iconUnread.isEmpty()) ? this.icon : this.iconUnread;
+                if (!targetIcon.isEmpty()) {
+                    this.tray.setImage(targetIcon);
+                }
             }
         });
     }
