@@ -38,6 +38,16 @@
   </screenshots>
 
   <releases>
+    <release version="1.5.1" date="2026-11-08">
+      <description>
+        <p>Pure Native Interface with Silent Performance Optimizations:</p>
+        <ul>
+          <li>Completely removed custom in-app drawer, options menu, and custom dock button for a 100% native, untouched WhatsApp Web interface</li>
+          <li>Retained zero-configuration silent background optimizations: WebRTC Privacy Shield (IP leak prevention), visual word-by-word Ctrl+Arrow navigation in message composer, and direct document download controller</li>
+          <li>Seamless system dark/light theme integration via nativeTheme.themeSource</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.5.0" date="2026-11-08">
       <description>
         <p>Exact WhatsApp Modern Dark Mode Theme Color Match:</p>

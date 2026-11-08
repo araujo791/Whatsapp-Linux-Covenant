@@ -1,6 +1,6 @@
 {
   "name": "whatsapp-desktop-linux",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "WhatsApp Desktop for Linux - Covenant Edition",
   "main": "dist/index.js",
   "scripts": {
